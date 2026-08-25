@@ -1,0 +1,22 @@
+{
+  "name": "cyberpunk-2077-portfolio",
+  "version": "2.0.77",
+  "description": "Cyberpunk 2077 Themed Interactive Portfolio - Fullstack Netrunner & Tech Mercenary",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 3000",
+    "start": "python3 -m http.server 3000",
+    "build": "echo 'Build complete! Static assets ready for deployment.'"
+  },
+  "keywords": [
+    "cyberpunk",
+    "cyberpunk-2077",
+    "portfolio",
+    "netrunner",
+    "interactive",
+    "web-audio-api",
+    "vercel"
+  ],
+  "author": "V // Netrunner",
+  "license": "MIT"
+}

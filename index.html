@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>V // CYBERPUNK 2077 PORTFOLIO & NETRUNNER INTERFACE</title>
+  
+  <!-- Cyber Meta & SEO -->
+  <meta name="description" content="Cyberpunk 2077 Themed Interactive Portfolio - Fullstack Netrunner & Tech Mercenary" />
+  <meta name="theme-color" content="#FCEE0A" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
+  <!-- Cyberpunk Stylesheet -->
+  <link rel="stylesheet" href="css/cyberpunk.css" />
+</head>
+<body>
+  <!-- Background Effects -->
+  <canvas id="particles-canvas"></canvas>
+  <div class="cyber-grid-bg"></div>
+  <div class="scanline-overlay"></div>
+  <div class="vignette-overlay"></div>
+
+  <!-- Telemetry HUD Bar -->
+  <div class="telemetry-bar">
+    <div>
+      <span class="pulse-dot"></span>
+      <span>NET.NODE: WATSON_SECTOR_04</span> // 
+      <span style="color: var(--cp-yellow);">STATUS: CONNECTED</span> // 
+      <span id="telemetry-fps">SYS.FPS: 60 // LATENCY: 12ms</span>
+    </div>
+    <div id="telemetry-clock">NIGHT_CITY_TIME: 00:00:00.00</div>
+  </div>
+
+  <!-- Cyber Navigation Bar -->
+  <header class="cyber-navbar">
+    <a href="#hero" class="nav-brand">
+      <div class="brand-icon">V</div>
+      <div class="brand-text">
+        <div class="brand-title">NETRUNNER<span>.2077</span></div>
+        <div class="brand-sub">CYBERPUNK INTERFACE PROTOCOL</div>
+      </div>
+    </a>
+
+    <nav>
+      <ul class="nav-links">
+        <li class="nav-item"><a href="#hero" class="active">BERANDA</a></li>
+        <li class="nav-item"><a href="#arsenal">TECH ARSENAL</a></li>
+        <li class="nav-item"><a href="#eksplorasi">EKSPLORASI & KEAHLIAN</a></li>
+        <li class="nav-item"><a href="#prestasi">PRESTASI & SERTIFIKAT</a></li>
+        <li class="nav-item"><a href="#dokumentasi">DOKUMENTASI & BUKTI</a></li>
+        <li class="nav-item"><a href="#kontak">CONTACT ME</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <!-- Admin Command Deck Secure Link -->
+      <a href="admin.html" class="cyber-icon-btn" style="border-color: var(--cp-yellow); color: var(--cp-yellow);" title="Buka Admin Dashboard">
+        <span>🔒</span> <span>ADMIN DECK</span>
+      </a>
+
+      <!-- Cyber Terminal Toggle -->
+      <button class="cyber-icon-btn" id="open-terminal-btn" title="Buka Cyber Terminal (~)">
+        <span>⌨️</span> <span>TERMINAL</span>
+      </button>
+
+      <!-- Audio Synthesizer Toggle -->
+      <button class="cyber-icon-btn active" id="audio-toggle-btn" title="Toggle Sound FX">
+        <span>🔊</span> <span>AUDIO: ON</span>
+      </button>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+        ☰
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       HERO SECTION: PROFILE & AVATAR (CLEAN & PUBLIC VIEW)
+       ========================================================================= -->
+  <section id="hero" class="hero-section">
+    <div class="cyber-container">
+      <div class="hero-grid">
+        <!-- Profile Details -->
+        <div class="hero-content">
+          <h1 class="hero-name glitch-text" id="hero-display-name" data-text="[V] NETRUNNER // V">
+            <span>[V]</span> NETRUNNER // V
+          </h1>
+
+          <div class="hero-role" id="hero-display-role">
+            <span class="typing-text">FULL-STACK NETRUNNER & TECH MERCENARY</span>
+            <span class="typing-cursor"></span>
+          </div>
+
+          <p class="hero-bio" id="hero-display-bio">
+            Spesialis dalam rekayasa sistem terdistribusi, pembuatan arsitektur web modern ultra-responsif,
+            dan integrasi kecerdasan buatan otonom di jagat Night City.
+          </p>
+
+          <div class="hero-stats-grid">
+            <div class="stat-box">
+              <div class="stat-value">64+</div>
+              <div class="stat-label">MISI & PROYEK</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value">99.9%</div>
+              <div class="stat-label">SYSTEM UPTIME</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value">100%</div>
+              <div class="stat-label">CODE INTEGRITY</div>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#kontak" class="cyber-btn cyber-btn-yellow">
+              <span>⚡ CONTACT ME</span>
+            </a>
+            <a href="#arsenal" class="cyber-btn cyber-btn-cyan">
+              <span>🛡️ ACCESS TECH ARSENAL</span>
+            </a>
+            <a href="#eksplorasi" class="cyber-btn cyber-btn-pink">
+              <span>🚀 EKSPLORASI MISI</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Cyber Profile Photo Frame (Public Display) -->
+        <div class="avatar-hud-wrapper">
+          <div class="avatar-frame" data-tilt>
+            <div class="avatar-hud-corners"></div>
+            <div class="avatar-scanner-line"></div>
+            <div class="avatar-img-container">
+              <img id="profile-avatar-img" src="" alt="Profile Face" />
+            </div>
+            <div class="avatar-status-badge">● STATUS: ONLINE // READY</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 1: TECH ARSENAL & TOOLS
+       ========================================================================= -->
+  <section id="arsenal" class="cyber-section">
+    <div class="cyber-container">
+      <div class="section-header">
+        <div class="section-tag">CYBERNETIC ARSENAL // TECH STACK MATRIX</div>
+        <h2 class="section-title">
+          TECH ARSENAL <span class="title-accent">& TOOLS</span>
+        </h2>
+        <p class="section-subtitle">
+          Kumpulan senjata teknologi, kerangka kerja modern, dan modul komputasi tingkat tinggi
+          yang siap dieksekusi untuk misi skala besar.
+        </p>
+        <div class="header-hud-line"></div>
+      </div>
+
+      <!-- Arsenal Category Filters -->
+      <div class="arsenal-filter-bar" id="arsenal-filters">
+        <button class="filter-btn active" data-filter="all">SEMUA ARSENAL</button>
+        <button class="filter-btn" data-filter="frontend">FRONT-END</button>
+        <button class="filter-btn" data-filter="backend">BACK-END & ENGINE</button>
+        <button class="filter-btn" data-filter="devops">DEVOPS & CLOUD</button>
+        <button class="filter-btn" data-filter="ai">AI & SYNTHETIC INTEL</button>
+        <button class="filter-btn" data-filter="security">CYBER SECURITY</button>
+      </div>
+
+      <!-- Arsenal Grid -->
+      <div class="arsenal-grid" id="arsenal-grid-container">
+        <!-- Dynamically rendered from store -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 2: EKSPLORASI & KEAHLIAN (PROJECTS & MISSIONS)
+       ========================================================================= -->
+  <section id="eksplorasi" class="cyber-section" style="background: rgba(8, 11, 18, 0.4);">
+    <div class="cyber-container">
+      <div class="section-header">
+        <div class="section-tag">MISSION LOGS // PORTFOLIO EXPLORATION</div>
+        <h2 class="section-title">
+          EKSPLORASI <span class="title-accent">& KEAHLIAN</span>
+        </h2>
+        <p class="section-subtitle">
+          Operasi digital dan proyek rekayasa perangkat lunak yang telah berhasil diselesaikan dengan presisi tinggi.
+        </p>
+        <div class="header-hud-line"></div>
+      </div>
+
+      <!-- Projects Grid -->
+      <div class="exploration-grid" id="projects-grid-container">
+        <!-- Dynamically rendered from store -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 3: PRESTASI & SERTIFIKAT
+       ========================================================================= -->
+  <section id="prestasi" class="cyber-section">
+    <div class="cyber-container">
+      <div class="section-header">
+        <div class="section-tag">VERIFIED ICE CREDENTIALS // AWARDS</div>
+        <h2 class="section-title">
+          PRESTASI <span class="title-accent">& SERTIFIKAT</span>
+        </h2>
+        <p class="section-subtitle">
+          Bukti sertifikasi resmi, kejuaraan hackathon, dan pengakuan industri teknologi yang telah divalidasi.
+        </p>
+        <div class="header-hud-line"></div>
+      </div>
+
+      <!-- Top Controls & Filters -->
+      <div class="credentials-top-bar">
+        <div class="arsenal-filter-bar" id="cert-filters" style="margin-bottom: 0;">
+          <button class="filter-btn active" data-filter="all">SEMUA DOKUMEN</button>
+          <button class="filter-btn" data-filter="prestasi">PRESTASI & JUARA</button>
+          <button class="filter-btn" data-filter="sertifikat">SERTIFIKASI RESMI</button>
+        </div>
+      </div>
+
+      <!-- Credentials Grid -->
+      <div class="credentials-grid" id="certificates-grid-container">
+        <!-- Dynamically rendered from store -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 4: DOKUMENTASI & BUKTI (GALLERY SHOWCASE - ALL IMAGE FORMATS)
+       ========================================================================= -->
+  <section id="dokumentasi" class="cyber-section" style="background: rgba(8, 11, 18, 0.4);">
+    <div class="cyber-container">
+      <div class="section-header">
+        <div class="section-tag">NEURAL MEMORY MATRIX // PHOTO EVIDENCE HUB</div>
+        <h2 class="section-title">
+          DOKUMENTASI <span class="title-accent">& BUKTI</span>
+        </h2>
+        <p class="section-subtitle">
+          Galeri visual bukti kegiatan, workshop, kejuaraan, pengujian sistem, dan dokumentasi lapangan.
+          Mendukung semua format gambar (.jpg, .png, .webp, .gif, .svg, dll).
+        </p>
+        <div class="header-hud-line"></div>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div class="gallery-grid" id="documentation-grid-container">
+        <!-- Dynamically rendered from store -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 5: CONTACT ME (HUBUNGI SAYA)
+       ========================================================================= -->
+  <section id="kontak" class="cyber-section">
+    <div class="cyber-container">
+      <div class="section-header">
+        <div class="section-tag">DIRECT CHANNEL // CONTACT ME</div>
+        <h2 class="section-title">
+          CONTACT <span class="title-accent">ME</span>
+        </h2>
+        <p class="section-subtitle">
+          Kirim pesan langsung untuk kolaborasi proyek, peluang kerja, atau konsultasi teknologi.
+        </p>
+        <div class="header-hud-line"></div>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Direct Channel Cards -->
+        <div>
+          <h3 style="font-family: var(--font-display); font-size: 1.2rem; color: #FFF; margin-bottom: 20px;">
+            SALURAN LANGSUNG (DIRECT FREQUENCIES)
+          </h3>
+
+          <div class="direct-channels-grid">
+            <!-- Steam -->
+            <a href="#" id="contact-steam-link" target="_blank" class="channel-box">
+              <div class="channel-icon">🎮</div>
+              <div>
+                <div class="channel-name">STEAM PROFILE</div>
+                <div class="channel-handle" id="contact-steam-val">pushygamertag27</div>
+              </div>
+            </a>
+
+            <!-- Instagram -->
+            <a href="#" id="contact-instagram-link" target="_blank" class="channel-box">
+              <div class="channel-icon">📸</div>
+              <div>
+                <div class="channel-name">INSTAGRAM</div>
+                <div class="channel-handle" id="contact-instagram-val">@pushygamertag27</div>
+              </div>
+            </a>
+
+            <!-- Facebook -->
+            <a href="#" id="contact-facebook-link" target="_blank" class="channel-box">
+              <div class="channel-icon">🌐</div>
+              <div>
+                <div class="channel-name">FACEBOOK</div>
+                <div class="channel-handle" id="contact-facebook-val">facebook.com/profile</div>
+              </div>
+            </a>
+
+            <!-- Discord -->
+            <div class="channel-box" style="cursor: pointer;" onclick="navigator.clipboard.writeText(document.getElementById('contact-discord-val').innerText); if(window.cyberAudio) window.cyberAudio.playSuccess(); window.showCyberToast('DISCORD TAG COPIED TO CLIPBOARD!', 'cyan');">
+              <div class="channel-icon">💬</div>
+              <div>
+                <div class="channel-name">DISCORD LINK</div>
+                <div class="channel-handle" id="contact-discord-val">netrunner_v#2077</div>
+              </div>
+            </div>
+
+            <!-- GitHub -->
+            <a href="#" id="contact-github-link" target="_blank" class="channel-box">
+              <div class="channel-icon">💾</div>
+              <div>
+                <div class="channel-name">GITHUB REPO</div>
+                <div class="channel-handle">github.com/netrunner</div>
+              </div>
+            </a>
+
+            <!-- Email -->
+            <a href="#" id="contact-email-link" class="channel-box">
+              <div class="channel-icon">✉️</div>
+              <div>
+                <div class="channel-name">EMAIL</div>
+                <div class="channel-handle" id="contact-email-val">netrunner.v@nightcity.io</div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Direct Status Callout -->
+          <div style="margin-top: 25px; padding: 20px; background: rgba(0, 240, 255, 0.05); border-left: 3px solid var(--cp-cyan); font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.6; color: var(--text-muted);">
+            <div style="color: var(--cp-cyan); font-weight: bold; margin-bottom: 4px;">// DIRECT RESPONSE PROTOCOL:</div>
+            Semua pesan yang dikirimkan melalui formulir di bawah akan diproses dengan cepat. Respon dijamin dalam kurun waktu 1x24 jam.
+          </div>
+        </div>
+
+        <!-- Contact Me Form -->
+        <div class="transmission-card">
+          <form id="cyber-contact-form">
+            <div class="form-group">
+              <label class="form-label" for="contact-name">NAMA LENGKAP :</label>
+              <input type="text" id="contact-name" class="form-input" placeholder="Masukkan nama atau alias kamu..." required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contact-email">ALAMAT EMAIL :</label>
+              <input type="email" id="contact-email" class="form-input" placeholder="alamat@domain.com" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contact-subject">SUBJEK PESAN :</label>
+              <input type="text" id="contact-subject" class="form-input" placeholder="Misal: Tawaran Proyek Web / AI" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contact-message">ISI PESAN :</label>
+              <textarea id="contact-message" class="form-textarea" placeholder="Tuliskan pesan atau detail kebutuhan kamu di sini..." required></textarea>
+            </div>
+
+            <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
+              <span>⚡ SEND MESSAGE</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       FOOTER
+       ========================================================================= -->
+  <footer class="cyber-footer">
+    <div class="cyber-container">
+      <div class="footer-content">
+        <div class="footer-text">
+          <span>// CYBERPUNK 2077 INTERFACE</span> - ARCHITECTED BY <span>V // NETRUNNER</span> © 2026. ALL RIGHTS RESERVED.
+        </div>
+        <div class="footer-text">
+          <a href="admin.html" style="color: var(--cp-yellow); text-decoration: none; font-weight: bold; margin-right: 15px;">
+            🔒 [ADMIN COMMAND DECK]
+          </a>
+          NIGHT CITY NODE v2.077 // STATUS: <span style="color: var(--cp-green);">OPERATIONAL</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       MODAL 1: FULLSCREEN LIGHTBOX (PUBLIC MEDIA PREVIEW)
+       ========================================================================= -->
+  <div id="modal-lightbox" class="cyber-modal-overlay">
+    <div class="cyber-modal-box" style="max-width: 850px;">
+      <div class="modal-header">
+        <div class="modal-title" id="lightbox-title">CYBER_MEDIA_VIEWER</div>
+        <button class="modal-close-btn" onclick="window.cyberModals.closeModal('modal-lightbox')">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 15px; text-align: center;">
+        <div style="max-height: 60vh; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-subtle); margin-bottom: 15px;">
+          <img id="lightbox-image" src="" alt="Preview" style="max-width: 100%; max-height: 60vh; object-fit: contain;" />
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span class="cyber-pill" id="lightbox-meta">VERIFIED</span>
+        </div>
+        <p id="lightbox-caption" style="text-align: left; font-family: var(--font-sub); font-size: 1rem; color: var(--text-muted); line-height: 1.6;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: PROJECT DEEP-DIVE MODAL (PUBLIC SPECS VIEW)
+       ========================================================================= -->
+  <div id="modal-project-detail" class="cyber-modal-overlay">
+    <div class="cyber-modal-box" style="max-width: 780px;">
+      <div class="modal-header">
+        <div class="modal-title" id="proj-modal-title">MISSION DEEP-DIVE</div>
+        <button class="modal-close-btn" onclick="window.cyberModals.closeModal('modal-project-detail')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="position: relative; height: 260px; overflow: hidden; border: 1px solid var(--cp-cyan); margin-bottom: 20px;">
+          <img id="proj-modal-image" src="" alt="Project Visual" style="width: 100%; height: 100%; object-fit: cover;" />
+          <div class="card-hud-badge" id="proj-modal-code">OP_MISSION</div>
+        </div>
+        <p id="proj-modal-desc" style="font-family: var(--font-sub); font-size: 1.1rem; color: var(--text-main); line-height: 1.7; margin-bottom: 20px;"></p>
+        
+        <div style="background: rgba(0, 0, 0, 0.6); border: 1px solid var(--border-subtle); padding: 15px; margin-bottom: 20px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--cp-yellow);">
+          <div>// SYSTEM TELEMETRY & SPECS:</div>
+          <div id="proj-modal-specs" style="color: #FFF; margin-top: 5px;"></div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <div class="form-label">TECHNOLOGY STACK :</div>
+          <div class="card-tags" id="proj-modal-tags"></div>
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+          <a href="#" id="proj-modal-demo" target="_blank" class="cyber-btn cyber-btn-yellow" style="flex: 1;">
+            ⚡ LIVE DEPLOYMENT
+          </a>
+          <a href="#" id="proj-modal-repo" target="_blank" class="cyber-btn cyber-btn-cyan" style="flex: 1;">
+            💾 SOURCE REPOSITORY
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3: INTERACTIVE CYBER TERMINAL DRAWER
+       ========================================================================= -->
+  <div id="modal-cyber-terminal" class="cyber-modal-overlay">
+    <div class="cyber-modal-box" style="max-width: 700px; background: #07090E;">
+      <div class="modal-header" style="background: #000;">
+        <div class="modal-title" style="color: var(--cp-cyan);">CYBER_TERMINAL // NIGHT_CITY_OS v2.077</div>
+        <button class="modal-close-btn" onclick="window.cyberModals.closeModal('modal-cyber-terminal')">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 15px;">
+        <div id="terminal-output-body" style="height: 280px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; color: #FFF; background: #000; padding: 12px; border: 1px solid var(--border-subtle); margin-bottom: 12px;">
+          <div style="color: var(--cp-yellow);">NIGHT CITY INTERFACE PROTOCOL [AUTHENTICATED]</div>
+          <div style="color: var(--cp-cyan);">Ketik <b style="color: #FFF;">'help'</b> untuk melihat daftar perintah yang tersedia.</div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span style="font-family: var(--font-mono); color: var(--cp-yellow); font-weight: bold;">></span>
+          <input type="text" id="terminal-command-input" class="form-input" placeholder="Masukkan perintah (e.g. help, skills, certs, contact)..." autocomplete="off" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cyber Toast Notifications Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/modals.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/lanyard.js"></script>
+</body>
+</html>

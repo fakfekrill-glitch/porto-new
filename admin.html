@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COMMAND DECK // CYBERPUNK ADMIN PROTOCOL</title>
+
+  <!-- Cyber Meta & SEO -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#FCEE0A" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/cyberpunk.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <!-- Background Effects -->
+  <canvas id="particles-canvas"></canvas>
+  <div class="cyber-grid-bg"></div>
+  <div class="scanline-overlay"></div>
+  <div class="vignette-overlay"></div>
+
+  <!-- =========================================================================
+       SCREEN 1: ICE SECURITY LOGIN GATEWAY (PROTECTED)
+       ========================================================================= -->
+  <div id="ice-login-screen" class="ice-login-wrapper">
+    <div class="ice-login-card">
+      <div class="ice-login-header">
+        <div class="ice-security-badge">● CLASSIFIED ICE BARRIER // MILITECH PROTOCOL</div>
+        <h1 class="ice-title">DECK ACCESS <span>GATEWAY</span></h1>
+        <div class="ice-subtitle">// MASUKKAN MASTER SECURITY PASSPHRASE</div>
+      </div>
+
+      <form id="ice-login-form">
+        <div style="position: relative; margin-bottom: 20px;">
+          <input
+            type="password"
+            id="ice-pin-input"
+            class="ice-pin-input"
+            placeholder="••••••••••••"
+            autocomplete="current-password"
+            required
+          />
+          <button
+            type="button"
+            id="toggle-pin-visibility"
+            class="cyber-btn cyber-btn-cyan cyber-btn-sm"
+            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 6px 12px; font-size: 0.72rem;"
+          >
+            👁️ LIHAT
+          </button>
+        </div>
+
+        <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
+          ⚡ BREACH ICE & ACCESS DECK
+        </button>
+      </form>
+
+      <div class="ice-default-hint">
+        <div>[SECURITY NOTE] Default Master Passphrase: <b style="color: var(--cp-yellow);">NETRUNNER2077</b></div>
+        <div style="margin-top: 6px;">Passphrase dilindungi enkripsi SHA-256 dan dapat diubah di menu Pengaturan Keamanan.</div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <a href="index.html" class="cyber-btn cyber-btn-cyan cyber-btn-sm" style="width: 100%;">
+          ← KEMBALI KE PORTOFOLIO UTAMA
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SCREEN 2: ADMIN COMMAND DECK (DASHBOARD)
+       ========================================================================= -->
+  <div id="admin-dashboard-app" class="admin-app-layout" style="display: none;">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-brand-title">
+          <span>⚡</span> DECK<span>.ADMIN</span>
+        </div>
+        <div class="admin-brand-sub">CYBERPUNK CONTROL CENTER</div>
+      </div>
+
+      <ul class="admin-nav-menu">
+        <li class="admin-nav-item">
+          <button class="active" data-tab="tab-overview">
+            <span>📊 RINGKASAN DATA</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button data-tab="tab-profile">
+            <span>👤 PROFIL & FOTO MUKA</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button data-tab="tab-projects">
+            <span>⚡ EKSPLORASI & KEAHLIAN</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button data-tab="tab-arsenal">
+            <span>🛡️ TECH ARSENAL</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button data-tab="tab-certificates">
+            <span>🏆 PRESTASI & SERTIFIKAT</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button data-tab="tab-documentation">
+            <span>📸 DOKUMENTASI & BUKTI</span>
+          </button>
+        </li>
+        <li class="admin-nav-item">
+          <button data-tab="tab-security">
+            <span>🔒 KEAMANAN & BACKUP</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="admin-sidebar-footer">
+        <a href="index.html" target="_blank" class="cyber-btn cyber-btn-cyan cyber-btn-sm" style="width: 100%;">
+          🌐 BUKA LIVE PORTOFOLIO ↗
+        </a>
+        <button id="admin-logout-btn" class="cyber-btn cyber-btn-pink cyber-btn-sm" style="width: 100%;">
+          🔒 KUNCI TERMINAL (LOGOUT)
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="admin-main-viewport">
+      <!-- TOP BAR -->
+      <div class="admin-top-bar">
+        <div>
+          <h1 class="admin-page-title">COMMAND <span>DECK</span></h1>
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--cp-cyan);">
+            NIGHT CITY SUITE // ENCRYPTED SESSION ACTIVE
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="cyber-btn cyber-btn-yellow cyber-btn-sm" onclick="window.location.reload()">
+            🔄 REFRESH DATA
+          </button>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           TAB 1: OVERVIEW & TELEMETRY
+           ===================================================================== -->
+      <section id="tab-overview" class="admin-tab-pane active">
+        <div class="admin-grid-three" style="margin-bottom: 25px;">
+          <div class="admin-stat-widget">
+            <div class="stat-widget-number" id="overview-total-projects">0</div>
+            <div class="stat-widget-title">MISI EKSPLORASI AKTIF</div>
+          </div>
+          <div class="admin-stat-widget">
+            <div class="stat-widget-number" id="overview-total-skills">0</div>
+            <div class="stat-widget-title">TECH ARSENAL & TOOLS</div>
+          </div>
+          <div class="admin-stat-widget">
+            <div class="stat-widget-number" id="overview-total-certs">0</div>
+            <div class="stat-widget-title">PRESTASI & SERTIFIKAT</div>
+          </div>
+        </div>
+
+        <div class="admin-grid-two">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title">STATUS PROFIL NETRUNNER</h3>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 0.95rem; line-height: 1.8;">
+              <div>NAMA: <b id="overview-profile-name" style="color: var(--cp-yellow);">-</b></div>
+              <div>TITLE: <span id="overview-profile-title" style="color: var(--cp-cyan);">-</span></div>
+              <div style="margin-top: 15px;">
+                <span class="cyber-pill">ICE ENCRYPTION: SHA-256 OK</span>
+                <span class="cyber-pill cyber-pill-yellow">LOCAL STORAGE SYNC: 100%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title">TOTAL BUKTI DOKUMENTASI</h3>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <div class="stat-widget-number" id="overview-total-docs" style="font-size: 3rem;">0</div>
+                <div class="stat-widget-title">FOTO KEGIATAN // SEMUA FORMAT OK</div>
+              </div>
+              <button class="cyber-btn cyber-btn-cyan cyber-btn-sm" onclick="document.querySelector('[data-tab=tab-documentation]').click()">
+                KELOLA DOKUMENTASI →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 2: PROFIL & FOTO MUKA (EXCLUSIVE ADMIN - FIXED & BUG-FREE)
+           ===================================================================== -->
+      <section id="tab-profile" class="admin-tab-pane">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">👤 KELOLA PROFIL & FOTO MUKA (ALL IMAGE FORMATS)</h3>
+          </div>
+
+          <form id="admin-form-profile">
+            <!-- Universal Image Uploader -->
+            <label class="form-label">UNGGAH FOTO PROFILE MUKA (.JPG, .PNG, .WEBP, .GIF, .SVG, .AVIF, DLL):</label>
+            <div class="cyber-dropzone" id="admin-profile-dropzone">
+              <div class="dropzone-icon">📷</div>
+              <div class="dropzone-text">Klik atau Tarik Foto Muka Baru ke Sini</div>
+              <div class="dropzone-subtext">Mendukung semua format gambar tanpa batas</div>
+              <input type="file" id="admin-profile-file-input" accept="image/*" style="display: none;" />
+
+              <div class="dropzone-preview" id="admin-profile-preview-container">
+                <img id="admin-profile-preview-img" src="" alt="Profile Preview" />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-name">NAMA LENGKAP / CALLSIGN :</label>
+                <input type="text" id="admin-prof-name" class="form-input" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-title">TITLE / SPESIALISASI :</label>
+                <input type="text" id="admin-prof-title" class="form-input" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-prof-bio">BIO & DESKRIPSI UTAMA :</label>
+              <textarea id="admin-prof-bio" class="form-textarea" placeholder="Tuliskan biografi atau spesialisasi Anda..."></textarea>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-location">LOKASI / DOMISILI :</label>
+                <input type="text" id="admin-prof-location" class="form-input" placeholder="Misal: Jakarta, Indonesia / Watson District" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-email">EMAIL :</label>
+                <input type="email" id="admin-prof-email" class="form-input" placeholder="alamat@email.com" />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-steam">STEAM PROFILE URL :</label>
+                <input type="text" id="admin-prof-steam" class="form-input" placeholder="https://steamcommunity.com/id/..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-discord">DISCORD USERNAME / TAG :</label>
+                <input type="text" id="admin-prof-discord" class="form-input" placeholder="user#1234" />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-instagram">INSTAGRAM URL :</label>
+                <input type="text" id="admin-prof-instagram" class="form-input" placeholder="https://instagram.com/..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-facebook">FACEBOOK URL :</label>
+                <input type="text" id="admin-prof-facebook" class="form-input" placeholder="https://facebook.com/..." />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-github">GITHUB URL :</label>
+                <input type="text" id="admin-prof-github" class="form-input" placeholder="https://github.com/..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-prof-telegram">TELEGRAM URL :</label>
+                <input type="text" id="admin-prof-telegram" class="form-input" placeholder="https://t.me/..." />
+              </div>
+            </div>
+
+            <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%; margin-top: 15px;">
+              💾 SIMPAN PERUBAHAN PROFIL & FOTO
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 3: EKSPLORASI & KEAHLIAN (PROJECTS & MISSIONS)
+           ===================================================================== -->
+      <section id="tab-projects" class="admin-tab-pane">
+        <!-- Form Add New Project -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">⚡ TAMBAH MISI EKSPLORASI BARU (UPLOAD GAMBAR & KETERANGAN)</h3>
+          </div>
+
+          <form id="admin-form-add-project">
+            <!-- Project Image Dropzone -->
+            <label class="form-label">UNGGAH GAMBAR MISI / PROYEK (SEMUA FORMAT .JPG, .PNG, .WEBP, .GIF, .SVG DIDUKUNG):</label>
+            <div class="cyber-dropzone" id="admin-project-dropzone">
+              <div class="dropzone-icon">🖼️</div>
+              <div class="dropzone-text">Pilih atau Tarik Gambar Proyek ke Sini</div>
+              <div class="dropzone-subtext">Mendukung format gambar apa pun</div>
+              <input type="file" id="admin-project-file-input" accept="image/*" style="display: none;" />
+
+              <div class="dropzone-preview" id="admin-project-preview-container">
+                <img id="admin-project-preview-img" src="" alt="Project Preview" />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="add-proj-title">JUDUL PROYEK / MISI :</label>
+                <input type="text" id="add-proj-title" class="form-input" placeholder="Misal: PROJECT NIGHT CITY HUD 2.0" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="add-proj-code">KODE OPERASI MISI :</label>
+                <input type="text" id="add-proj-code" class="form-input" placeholder="Misal: OP_BLACKWALL_SENTINEL" required />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="add-proj-category">KATEGORI :</label>
+                <select id="add-proj-category" class="form-input">
+                  <option value="web">Web Platform / Fullstack</option>
+                  <option value="ai">AI & Synthetic Intelligence</option>
+                  <option value="security">Cyber Security & Defense</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="add-proj-tags">STACK TEKNOLOGI (PISAHKAN KOMA):</label>
+                <input type="text" id="add-proj-tags" class="form-input" placeholder="React 19, TypeScript, TailwindCSS, WebSockets" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="add-proj-desc">DESKRIPSI LENGKAP & KETERANGAN MISI :</label>
+              <textarea id="add-proj-desc" class="form-textarea" placeholder="Jelaskan detail proyek, tantangan yang diselesaikan, dan dampaknya..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="add-proj-specs">SPESIFIKASI SISTEM (TELEMETRY SPECS):</label>
+              <input type="text" id="add-proj-specs" class="form-input" placeholder="Latency: <12ms // Throughput: 100k req/s // Architecture: Microservices" />
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="add-proj-demo">LINK LIVE DEMO :</label>
+                <input type="url" id="add-proj-demo" class="form-input" placeholder="https://demo-proyek.com" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="add-proj-repo">LINK KODE REPOSITORI (GITHUB) :</label>
+                <input type="url" id="add-proj-repo" class="form-input" placeholder="https://github.com/..." />
+              </div>
+            </div>
+
+            <button type="submit" class="cyber-btn cyber-btn-cyan" style="width: 100%; margin-top: 10px;">
+              ⚡ SIMPAN & TERBITKAN MISI EKSPLORASI
+            </button>
+          </form>
+        </div>
+
+        <!-- List of Existing Projects -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">📋 DAFTAR MISI EKSPLORASI AKTIF</h3>
+          </div>
+          <div class="admin-items-grid" id="admin-projects-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 4: TECH ARSENAL & TOOLS
+           ===================================================================== -->
+      <section id="tab-arsenal" class="admin-tab-pane">
+        <!-- Add Skill -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">🛡️ TAMBAH TEKNOLOGI / SKILL ARSENAL</h3>
+          </div>
+
+          <form id="admin-form-add-skill">
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="add-skill-name">NAMA TEKNOLOGI / FRAMEWORK :</label>
+                <input type="text" id="add-skill-name" class="form-input" placeholder="Misal: Vue.js / Golang / Docker" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="add-skill-icon">IKON EMOJI :</label>
+                <input type="text" id="add-skill-icon" class="form-input" placeholder="⚛️ / ⚡ / 🛡️ / 🐍" required />
+              </div>
+            </div>
+
+            <div class="admin-grid-three">
+              <div class="form-group">
+                <label class="form-label" for="add-skill-category">KATEGORI :</label>
+                <select id="add-skill-category" class="form-input">
+                  <option value="frontend">Front-End Cyberware</option>
+                  <option value="backend">Back-End Engine</option>
+                  <option value="devops">DevOps & Cloud</option>
+                  <option value="ai">AI & Synthetic Intel</option>
+                  <option value="security">Cyber Security & Defense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="add-skill-proficiency">TINGKAT KEMAHIRAN (1 - 100)% :</label>
+                <input type="number" id="add-skill-proficiency" class="form-input" min="1" max="100" value="90" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="add-skill-level">LEVEL TITLE :</label>
+                <input type="text" id="add-skill-level" class="form-input" placeholder="EXPERT / MASTER / ARCHITECT" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="add-skill-desc">DESKRIPSI SKILL :</label>
+              <textarea id="add-skill-desc" class="form-textarea" placeholder="Jelaskan kapabilitas Anda dalam teknologi ini..." required></textarea>
+            </div>
+
+            <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
+              ✓ TAMBAHKAN KE TECH ARSENAL
+            </button>
+          </form>
+        </div>
+
+        <!-- Arsenal List -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">DAFTAR TECH ARSENAL</h3>
+          </div>
+          <div class="arsenal-grid" id="admin-arsenal-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 5: PRESTASI & SERTIFIKAT
+           ===================================================================== -->
+      <section id="tab-certificates" class="admin-tab-pane">
+        <!-- Add Certificate -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">🏆 UNGGAH PRESTASI & SERTIFIKAT BARU</h3>
+          </div>
+
+          <form id="admin-form-add-cert">
+            <!-- Cert Image Dropzone -->
+            <label class="form-label">UNGGAH BERKAS GAMBAR SERTIFIKAT (SEMUA FORMAT DIDUKUNG):</label>
+            <div class="cyber-dropzone" id="admin-cert-dropzone">
+              <div class="dropzone-icon">📜</div>
+              <div class="dropzone-text">Pilih atau Tarik Gambar Sertifikat ke Sini</div>
+              <div class="dropzone-subtext">Mendukung .JPG, .PNG, .WEBP, .GIF, .SVG, dll.</div>
+              <input type="file" id="admin-cert-file-input" accept="image/*" style="display: none;" />
+
+              <div class="dropzone-preview" id="admin-cert-preview-container">
+                <img id="admin-cert-preview-img" src="" alt="Cert Preview" />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="admin-cert-title">JUDUL SERTIFIKAT / PRESTASI :</label>
+                <input type="text" id="admin-cert-title" class="form-input" placeholder="Misal: Certified Fullstack Netrunner" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-cert-issuer">PENERBIT / ORGANISASI :</label>
+                <input type="text" id="admin-cert-issuer" class="form-input" placeholder="Misal: Google / Hackathon League" required />
+              </div>
+            </div>
+
+            <div class="admin-grid-three">
+              <div class="form-group">
+                <label class="form-label" for="admin-cert-category">KATEGORI :</label>
+                <select id="admin-cert-category" class="form-input">
+                  <option value="sertifikat">Sertifikasi Resmi</option>
+                  <option value="prestasi">Prestasi / Juara Hackathon</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-cert-date">TANGGAL / TAHUN :</label>
+                <input type="text" id="admin-cert-date" class="form-input" placeholder="2025 - VERIFIED" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-cert-id">ID KREDENSIAL :</label>
+                <input type="text" id="admin-cert-id" class="form-input" placeholder="CERT-ID-99210" />
+              </div>
+            </div>
+
+            <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
+              ✓ UNGGAH PRESTASI & SERTIFIKAT
+            </button>
+          </form>
+        </div>
+
+        <!-- Certs List -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">DAFTAR SERTIFIKAT AKTIF</h3>
+          </div>
+          <div class="admin-items-grid" id="admin-certs-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 6: DOKUMENTASI & BUKTI (GALLERY)
+           ===================================================================== -->
+      <section id="tab-documentation" class="admin-tab-pane">
+        <!-- Add Doc -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">📸 UNGGAH DOKUMENTASI & BUKTI KEGIATAN (ALL FORMATS)</h3>
+          </div>
+
+          <form id="admin-form-add-doc">
+            <!-- Doc Image Dropzone -->
+            <label class="form-label">UNGGAH BERKAS FOTO BUKTI (SEMUA FORMAT DIDUKUNG):</label>
+            <div class="cyber-dropzone" id="admin-doc-dropzone">
+              <div class="dropzone-icon">🖼️</div>
+              <div class="dropzone-text">Pilih atau Tarik Foto Bukti ke Sini</div>
+              <div class="dropzone-subtext">Mendukung .JPG, .PNG, .WEBP, .GIF, .SVG, .BMP, dll.</div>
+              <input type="file" id="admin-doc-file-input" accept="image/*" style="display: none;" />
+
+              <div class="dropzone-preview" id="admin-doc-preview-container">
+                <img id="admin-doc-preview-img" src="" alt="Doc Preview" />
+              </div>
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="admin-doc-title">JUDUL BUKTI / KEGIATAN :</label>
+                <input type="text" id="admin-doc-title" class="form-input" placeholder="Misal: Keynote Speaker Tech Summit" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admin-doc-tag">TAG / LABEL :</label>
+                <input type="text" id="admin-doc-tag" class="form-input" placeholder="LIVE WORKSHOP / HACKATHON" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-doc-date">TANGGAL & LOKASI :</label>
+              <input type="text" id="admin-doc-date" class="form-input" placeholder="Misal: Oktober 2025 // Night City" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="admin-doc-caption">KETERANGAN / DESKRIPSI BUKTI :</label>
+              <textarea id="admin-doc-caption" class="form-textarea" placeholder="Tuliskan catatan bukti kegiatan ini..."></textarea>
+            </div>
+
+            <button type="submit" class="cyber-btn cyber-btn-cyan" style="width: 100%;">
+              ✓ UNGGAH KE GALERI BUKTI
+            </button>
+          </form>
+        </div>
+
+        <!-- Docs List -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">DAFTAR FOTO DOKUMENTASI</h3>
+          </div>
+          <div class="admin-items-grid" id="admin-docs-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 7: KEAMANAN & BACKUP DATABASE (JSON)
+           ===================================================================== -->
+      <section id="tab-security" class="admin-tab-pane">
+        <!-- Change Passphrase -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">🔒 UBAH MASTER SECURITY PASSPHRASE (PIN)</h3>
+          </div>
+
+          <form id="admin-form-security">
+            <div class="form-group">
+              <label class="form-label" for="sec-old-pin">PASSPHRASE LAMA :</label>
+              <input type="password" id="sec-old-pin" class="form-input" placeholder="••••••••••••" required />
+            </div>
+
+            <div class="admin-grid-two">
+              <div class="form-group">
+                <label class="form-label" for="sec-new-pin">PASSPHRASE BARU :</label>
+                <input type="password" id="sec-new-pin" class="form-input" placeholder="Minimal 4 karakter" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sec-confirm-pin">KONFIRMASI PASSPHRASE BARU :</label>
+                <input type="password" id="sec-confirm-pin" class="form-input" placeholder="Ulangi passphrase baru" required />
+              </div>
+            </div>
+
+            <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
+              🔒 PERBARUI PASSPHRASE (SHA-256 HASH)
+            </button>
+          </form>
+        </div>
+
+        <!-- Database Backup & Restore -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">💾 CADANGAN & RESTORASI DATABASE MATRIX (JSON)</h3>
+          </div>
+
+          <div style="font-family: var(--font-sub); font-size: 1rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+            Seluruh data portofolio, termasuk foto profil, proyek, sertifikat, dan bukti dokumentasi disimpan dalam format data lokal. Anda dapat mengunduh seluruh data sebagai satu berkas JSON atau memulihkannya di perangkat lain kapan saja.
+          </div>
+
+          <div class="admin-grid-two">
+            <div style="background: rgba(0, 240, 255, 0.05); padding: 20px; border: 1px solid var(--border-subtle);">
+              <h4 style="font-family: var(--font-display); color: var(--cp-cyan); margin-bottom: 10px;">EKSPOR DATABASE (BACKUP)</h4>
+              <p style="font-family: var(--font-sub); font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">
+                Unduh seluruh data portofolio dan gambar yang sudah diunggah sebagai file JSON.
+              </p>
+              <button type="button" id="admin-export-backup-btn" class="cyber-btn cyber-btn-cyan" style="width: 100%;">
+                📥 DOWNLOAD MATRIX BACKUP (JSON)
+              </button>
+            </div>
+
+            <div style="background: rgba(252, 238, 10, 0.05); padding: 20px; border: 1px solid var(--border-subtle);">
+              <h4 style="font-family: var(--font-display); color: var(--cp-yellow); margin-bottom: 10px;">IMPOR & RESTORASI</h4>
+              <p style="font-family: var(--font-sub); font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">
+                Pilih file JSON backup untuk memulihkan seluruh data dan foto portofolio.
+              </p>
+              <input type="file" id="admin-import-file-input" accept=".json" style="display: none;" />
+              <button type="button" class="cyber-btn cyber-btn-yellow" style="width: 100%;" onclick="document.getElementById('admin-import-file-input').click()">
+                📤 PILIH BERKAS JSON & RESTORE
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 25px; border-top: 1px dashed rgba(255, 0, 60, 0.3); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+              <div style="font-family: var(--font-display); color: var(--cp-pink); font-size: 1rem;">RESET KE SETELAN AWAL (FACTORY RESET)</div>
+              <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">Kembalikan seluruh data ke sampel awal Cyberpunk 2077.</div>
+            </div>
+            <button type="button" class="cyber-btn cyber-btn-pink cyber-btn-sm" onclick="if(confirm('Yakin ingin mereset semua data ke awal default? Semua foto kustom akan dikembalikan.')){ window.cyberStore.resetAllDefaults(); window.location.reload(); }">
+              ⚠️ RESET SEMUA DATA
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: EDIT PROJECT MODAL (ADMIN)
+       ========================================================================= -->
+  <div id="modal-edit-project-admin" class="cyber-modal-overlay">
+    <div class="cyber-modal-box" style="max-width: 750px;">
+      <div class="modal-header">
+        <div class="modal-title">✏️ EDIT MISI EKSPLORASI</div>
+        <button class="modal-close-btn" onclick="document.getElementById('modal-edit-project-admin').classList.remove('active')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="admin-form-edit-project">
+          <input type="hidden" id="edit-proj-id" />
+
+          <!-- Edit Project Dropzone -->
+          <label class="form-label">GANTI GAMBAR PROYEK (OPSIONAL):</label>
+          <div class="cyber-dropzone" id="admin-edit-project-dropzone">
+            <div class="dropzone-icon">📷</div>
+            <div class="dropzone-text">Pilih atau Tarik Gambar Baru untuk Mengganti</div>
+            <input type="file" id="admin-edit-project-file-input" accept="image/*" style="display: none;" />
+
+            <div class="dropzone-preview" id="admin-edit-project-preview-container">
+              <img id="admin-edit-project-preview-img" src="" alt="Project Preview" />
+            </div>
+          </div>
+
+          <div class="admin-grid-two">
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-title">JUDUL PROYEK :</label>
+              <input type="text" id="edit-proj-title" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-code">KODE OPERASI :</label>
+              <input type="text" id="edit-proj-code" class="form-input" required />
+            </div>
+          </div>
+
+          <div class="admin-grid-two">
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-category">KATEGORI :</label>
+              <select id="edit-proj-category" class="form-input">
+                <option value="web">Web Platform / Fullstack</option>
+                <option value="ai">AI & Synthetic Intelligence</option>
+                <option value="security">Cyber Security & Defense</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-tags">STACK TEKNOLOGI :</label>
+              <input type="text" id="edit-proj-tags" class="form-input" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-proj-desc">DESKRIPSI LENGKAP :</label>
+            <textarea id="edit-proj-desc" class="form-textarea" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-proj-specs">SPESIFIKASI TELEMETRI :</label>
+            <input type="text" id="edit-proj-specs" class="form-input" />
+          </div>
+
+          <div class="admin-grid-two">
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-demo">LINK LIVE DEMO :</label>
+              <input type="url" id="edit-proj-demo" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-proj-repo">LINK GITHUB REPO :</label>
+              <input type="url" id="edit-proj-repo" class="form-input" />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="submit" class="cyber-btn cyber-btn-yellow" style="flex: 1;">
+              💾 SIMPAN PERUBAHAN
+            </button>
+            <button type="button" class="cyber-btn cyber-btn-pink" onclick="document.getElementById('modal-edit-project-admin').classList.remove('active')">
+              BATAL
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/lanyard.js"></script>
+</body>
+</html>
