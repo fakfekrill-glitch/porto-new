@@ -49,36 +49,42 @@ function renderAllUI() {
   window.renderDocumentationUI();
 }
 
+// Helper sanitizers for Public UI
+const esc = (s) => (window.cyberSecurity ? window.cyberSecurity.escapeHTML(s) : String(s || ''));
+const safeUrl = (u) => (window.cyberSecurity ? window.cyberSecurity.sanitizeURL(u) : u || '#');
+
 // 1. PROFILE UI RENDER
 window.renderProfileUI = function () {
   const profile = window.cyberStore.getProfile();
   
   const nameEl = document.getElementById('hero-display-name');
   if (nameEl) {
-    nameEl.innerHTML = `<span>[V]</span> ${profile.name}`;
-    nameEl.setAttribute('data-text', `[V] ${profile.name}`);
+    const cleanName = esc(profile.name);
+    nameEl.innerHTML = `<span>[V]</span> ${cleanName}`;
+    nameEl.setAttribute('data-text', `[V] ${cleanName}`);
   }
 
   const roleEl = document.getElementById('hero-display-role');
   if (roleEl) {
-    roleEl.innerHTML = `<span class="typing-text">${profile.title}</span><span class="typing-cursor"></span>`;
+    roleEl.innerHTML = `<span class="typing-text">${esc(profile.title)}</span><span class="typing-cursor"></span>`;
   }
 
   const bioEl = document.getElementById('hero-display-bio');
   if (bioEl) {
-    bioEl.textContent = profile.bio;
+    bioEl.textContent = profile.bio || '';
   }
   
   const avatarImg = document.getElementById('profile-avatar-img');
-  if (avatarImg) {
-    avatarImg.src = profile.avatar;
+  if (avatarImg && profile.avatar) {
+    avatarImg.src = safeUrl(profile.avatar);
   }
 
   // Update Contact Info
   if (profile.steam) {
     const steamLink = document.getElementById('contact-steam-link');
     const steamVal = document.getElementById('contact-steam-val');
-    if (steamLink) steamLink.href = profile.steam.startsWith('http') ? profile.steam : `https://steamcommunity.com/id/${profile.steam}`;
+    const steamTarget = profile.steam.startsWith('http') ? profile.steam : `https://steamcommunity.com/id/${profile.steam}`;
+    if (steamLink) steamLink.href = safeUrl(steamTarget);
     if (steamVal) {
       const parts = profile.steam.split('/').filter(Boolean);
       steamVal.textContent = parts[parts.length - 1] || profile.steam;
@@ -88,7 +94,8 @@ window.renderProfileUI = function () {
   if (profile.instagram) {
     const igLink = document.getElementById('contact-instagram-link');
     const igVal = document.getElementById('contact-instagram-val');
-    if (igLink) igLink.href = profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram.replace('@', '')}`;
+    const igTarget = profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram.replace('@', '')}`;
+    if (igLink) igLink.href = safeUrl(igTarget);
     if (igVal) {
       const parts = profile.instagram.split('/').filter(Boolean);
       const handle = parts[parts.length - 1] || profile.instagram;
@@ -99,7 +106,8 @@ window.renderProfileUI = function () {
   if (profile.facebook) {
     const fbLink = document.getElementById('contact-facebook-link');
     const fbVal = document.getElementById('contact-facebook-val');
-    if (fbLink) fbLink.href = profile.facebook.startsWith('http') ? profile.facebook : `https://facebook.com/${profile.facebook}`;
+    const fbTarget = profile.facebook.startsWith('http') ? profile.facebook : `https://facebook.com/${profile.facebook}`;
+    if (fbLink) fbLink.href = safeUrl(fbTarget);
     if (fbVal) {
       const parts = profile.facebook.split('/').filter(Boolean);
       fbVal.textContent = parts[parts.length - 1] || 'facebook.com';
@@ -109,7 +117,7 @@ window.renderProfileUI = function () {
   if (profile.email) {
     const emailLink = document.getElementById('contact-email-link');
     const emailVal = document.getElementById('contact-email-val');
-    if (emailLink) emailLink.href = `mailto:${profile.email}`;
+    if (emailLink) emailLink.href = `mailto:${encodeURIComponent(profile.email)}`;
     if (emailVal) emailVal.textContent = profile.email;
   }
 
@@ -120,7 +128,7 @@ window.renderProfileUI = function () {
 
   if (profile.github) {
     const ghLink = document.getElementById('contact-github-link');
-    if (ghLink) ghLink.href = profile.github;
+    if (ghLink) ghLink.href = safeUrl(profile.github);
   }
 };
 
@@ -137,20 +145,20 @@ window.renderArsenalUI = function (filter = 'all') {
       (tech) => `
     <div class="tech-card" data-tilt>
       <div class="tech-card-header">
-        <div class="tech-icon-box">${tech.icon}</div>
-        <span class="tech-category-tag">${tech.categoryLabel}</span>
+        <div class="tech-icon-box">${esc(tech.icon)}</div>
+        <span class="tech-category-tag">${esc(tech.categoryLabel)}</span>
       </div>
       <div>
-        <h3 class="tech-name">${tech.name}</h3>
-        <p class="tech-desc">${tech.desc}</p>
+        <h3 class="tech-name">${esc(tech.name)}</h3>
+        <p class="tech-desc">${esc(tech.desc)}</p>
       </div>
       <div>
         <div class="tech-proficiency-bar">
-          <div class="tech-proficiency-fill" style="width: ${tech.proficiency}%;"></div>
+          <div class="tech-proficiency-fill" style="width: ${Math.min(100, Math.max(0, Number(tech.proficiency) || 0))}%;"></div>
         </div>
         <div class="tech-proficiency-meta">
-          <span>PROFICIENCY // ${tech.level}</span>
-          <span>${tech.proficiency}%</span>
+          <span>PROFICIENCY // ${esc(tech.level)}</span>
+          <span>${Math.min(100, Math.max(0, Number(tech.proficiency) || 0))}%</span>
         </div>
       </div>
     </div>
@@ -172,35 +180,47 @@ window.renderProjectsUI = function () {
   const projects = window.cyberStore.getProjects();
   container.innerHTML = projects
     .map(
-      (proj) => `
+      (proj) => {
+        const cleanId = esc(proj.id);
+        const cleanTitle = esc(proj.title);
+        const cleanDesc = esc(proj.desc);
+        const cleanCat = esc(proj.categoryLabel);
+        const cleanCode = esc(proj.code);
+        const cleanImg = safeUrl(proj.image);
+        const cleanDemo = safeUrl(proj.demoUrl);
+        const cleanRepo = safeUrl(proj.repoUrl);
+        const tagBadges = (proj.tags || []).map((tag) => `<span class="card-tag">${esc(tag)}</span>`).join('');
+
+        return `
     <div class="exploration-card" data-tilt>
-      <div class="card-media-wrapper" onclick="window.openProjectById('${proj.id}')" style="cursor: pointer;">
-        <img src="${proj.image}" alt="${proj.title}" loading="lazy" />
-        <span class="card-hud-badge">${proj.categoryLabel}</span>
-        <span class="card-code-badge">${proj.code}</span>
+      <div class="card-media-wrapper" onclick="window.openProjectById('${cleanId}')" style="cursor: pointer;">
+        <img src="${cleanImg}" alt="${cleanTitle}" loading="lazy" />
+        <span class="card-hud-badge">${cleanCat}</span>
+        <span class="card-code-badge">${cleanCode}</span>
       </div>
       <div class="card-content">
-        <h3 class="card-title">${proj.title}</h3>
-        <p class="card-desc">${proj.desc}</p>
+        <h3 class="card-title">${cleanTitle}</h3>
+        <p class="card-desc">${cleanDesc}</p>
         <div class="card-tags">
-          ${proj.tags.map((tag) => `<span class="card-tag">${tag}</span>`).join('')}
+          ${tagBadges}
         </div>
         <div class="card-footer-actions">
-          <button class="cyber-btn cyber-btn-cyan cyber-btn-sm" onclick="window.openProjectById('${proj.id}')">
+          <button class="cyber-btn cyber-btn-cyan cyber-btn-sm" onclick="window.openProjectById('${cleanId}')">
             DEEP-DIVE HUD
           </button>
           <div class="card-links">
-            <a href="${proj.demoUrl}" target="_blank" class="card-link-btn" title="Live Preview">
+            <a href="${cleanDemo}" target="_blank" rel="noopener noreferrer" class="card-link-btn" title="Live Preview">
               ⚡ DEMO
             </a>
-            <a href="${proj.repoUrl}" target="_blank" class="card-link-btn" title="Source Repo">
+            <a href="${cleanRepo}" target="_blank" rel="noopener noreferrer" class="card-link-btn" title="Source Repo">
               💾 CODE
             </a>
           </div>
         </div>
       </div>
     </div>
-  `
+  `;
+      }
     )
     .join('');
 };
@@ -231,22 +251,31 @@ window.renderCertificatesUI = function (filter = 'all') {
 
   container.innerHTML = filtered
     .map(
-      (cert) => `
+      (cert) => {
+        const cleanId = esc(cert.id);
+        const cleanTitle = esc(cert.title);
+        const cleanIssuer = esc(cert.issuer);
+        const cleanDate = esc(cert.date);
+        const cleanCredId = esc(cert.credentialId || 'ID_VERIFIED');
+        const cleanImg = safeUrl(cert.image);
+
+        return `
     <div class="cert-card" data-tilt>
-      <div class="cert-media-preview" onclick="window.openCertLightbox('${cert.id}')">
-        <img src="${cert.image}" alt="${cert.title}" loading="lazy" />
+      <div class="cert-media-preview" onclick="window.openCertLightbox('${cleanId}')">
+        <img src="${cleanImg}" alt="${cleanTitle}" loading="lazy" />
         <span class="cert-verified-stamp">✓ VERIFIED_ICE</span>
       </div>
       <div class="cert-content">
-        <div class="cert-issuer">${cert.issuer}</div>
-        <h3 class="cert-title">${cert.title}</h3>
+        <div class="cert-issuer">${cleanIssuer}</div>
+        <h3 class="cert-title">${cleanTitle}</h3>
         <div class="cert-meta">
-          <span>${cert.date}</span>
-          <span>${cert.credentialId || 'ID_VERIFIED'}</span>
+          <span>${cleanDate}</span>
+          <span>${cleanCredId}</span>
         </div>
       </div>
     </div>
-  `
+  `;
+      }
     )
     .join('');
 };
@@ -275,16 +304,24 @@ window.renderDocumentationUI = function () {
 
   container.innerHTML = docs
     .map(
-      (doc) => `
-    <div class="gallery-item" onclick="window.openDocLightbox('${doc.id}')" data-tilt>
-      <img src="${doc.image}" alt="${doc.title}" loading="lazy" />
+      (doc) => {
+        const cleanId = esc(doc.id);
+        const cleanTitle = esc(doc.title);
+        const cleanTag = esc(doc.tag);
+        const cleanDate = esc(doc.date);
+        const cleanImg = safeUrl(doc.image);
+
+        return `
+    <div class="gallery-item" onclick="window.openDocLightbox('${cleanId}')" data-tilt>
+      <img src="${cleanImg}" alt="${cleanTitle}" loading="lazy" />
       <div class="gallery-overlay">
-        <span class="gallery-tag">${doc.tag}</span>
-        <div class="gallery-caption">${doc.title}</div>
-        <div class="gallery-date">${doc.date}</div>
+        <span class="gallery-tag">${cleanTag}</span>
+        <div class="gallery-caption">${cleanTitle}</div>
+        <div class="gallery-date">${cleanDate}</div>
       </div>
     </div>
-  `
+  `;
+      }
     )
     .join('');
 };

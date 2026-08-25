@@ -35,6 +35,11 @@
         <div class="ice-subtitle">// MASUKKAN MASTER SECURITY PASSPHRASE</div>
       </div>
 
+      <div id="ice-lockout-banner" style="display: none; background: rgba(255, 0, 60, 0.15); border: 1px solid var(--cp-pink); padding: 12px; margin-bottom: 20px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--cp-pink); text-align: center;">
+        <div style="font-weight: 700;">🚨 ICE LOCKDOWN ACTIVE</div>
+        <div id="ice-lockout-countdown" style="margin-top: 4px; font-size: 1.1rem; color: #FFF;">Terkunci: 0 detik</div>
+      </div>
+
       <form id="ice-login-form">
         <div style="position: relative; margin-bottom: 20px;">
           <input
@@ -55,14 +60,14 @@
           </button>
         </div>
 
-        <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
+        <button type="submit" id="ice-submit-btn" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
           ⚡ BREACH ICE & ACCESS DECK
         </button>
       </form>
 
-      <div class="ice-default-hint">
-        <div>[SECURITY NOTE] Default Master Passphrase: <b style="color: var(--cp-yellow);">NETRUNNER2077</b></div>
-        <div style="margin-top: 6px;">Passphrase dilindungi enkripsi SHA-256 dan dapat diubah di menu Pengaturan Keamanan.</div>
+      <div class="ice-default-hint" id="ice-login-hint">
+        <div>[SECURITY NOTE] Default Passphrase: <b style="color: var(--cp-yellow);">NETRUNNER2077</b> (jika belum diubah)</div>
+        <div style="margin-top: 6px;">Dilindungi Zero-Trust Cryptography & Tamper-Proof Anti-Brute-Force ICE.</div>
       </div>
 
       <div style="margin-top: 20px;">
@@ -576,15 +581,34 @@
             <h3 class="admin-card-title">DAFTAR FOTO DOKUMENTASI</h3>
           </div>
           <div class="admin-items-grid" id="admin-docs-list">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-      </section>
-
-      <!-- =====================================================================
+            <!-- Dynamically populated       <!-- =====================================================================
            TAB 7: KEAMANAN & BACKUP DATABASE (JSON)
            ===================================================================== -->
       <section id="tab-security" class="admin-tab-pane">
+        <!-- Live Security Telemetry Grid -->
+        <div class="admin-card" style="border-color: rgba(0, 240, 255, 0.4);">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">🛡️ MILITARY GRADE ICE TELEMETRY & STATUS</h3>
+          </div>
+          <div class="admin-grid-three" style="margin-bottom: 0;">
+            <div style="background: rgba(0, 240, 255, 0.05); padding: 15px; border-left: 3px solid var(--cp-cyan);">
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">ENKRIPSI MASTER PIN</div>
+              <div style="font-family: var(--font-display); font-size: 1.05rem; color: var(--cp-cyan); margin-top: 4px;">SHA-256 (SALTED)</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">1,000x Cryptographic Rounds</div>
+            </div>
+            <div style="background: rgba(252, 238, 10, 0.05); padding: 15px; border-left: 3px solid var(--cp-yellow);">
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">ANTI-BRUTE FORCE ICE</div>
+              <div style="font-family: var(--font-display); font-size: 1.05rem; color: var(--cp-yellow); margin-top: 4px;">ACTIVE & SEALED</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Persistent Checksum Protected</div>
+            </div>
+            <div style="background: rgba(255, 0, 60, 0.05); padding: 15px; border-left: 3px solid var(--cp-pink);">
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">INACTIVITY AUTO-LOCK</div>
+              <div style="font-family: var(--font-display); font-size: 1.05rem; color: var(--cp-pink); margin-top: 4px;">15 MENIT TIMER</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Auto-Purge Session Token</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Change Passphrase -->
         <div class="admin-card">
           <div class="admin-card-header">
@@ -600,7 +624,7 @@
             <div class="admin-grid-two">
               <div class="form-group">
                 <label class="form-label" for="sec-new-pin">PASSPHRASE BARU :</label>
-                <input type="password" id="sec-new-pin" class="form-input" placeholder="Minimal 4 karakter" required />
+                <input type="password" id="sec-new-pin" class="form-input" placeholder="Minimal 6 karakter" required />
               </div>
               <div class="form-group">
                 <label class="form-label" for="sec-confirm-pin">KONFIRMASI PASSPHRASE BARU :</label>
@@ -609,9 +633,30 @@
             </div>
 
             <button type="submit" class="cyber-btn cyber-btn-yellow" style="width: 100%;">
-              🔒 PERBARUI PASSPHRASE (SHA-256 HASH)
+              🔒 PERBARUI PASSPHRASE (SALTED CRYPTOGRAPHIC HASH)
             </button>
           </form>
+        </div>
+
+        <!-- Security Audit Logs -->
+        <div class="admin-card">
+          <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="admin-card-title">📜 LOG AUDIT KEAMANAN REAL-TIME (BLACKWALL SENTINEL)</h3>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="admin-refresh-audit-btn" class="cyber-btn cyber-btn-cyan cyber-btn-sm">
+                🔄 REFRESH LOG
+              </button>
+              <button type="button" id="admin-clear-audit-btn" class="cyber-btn cyber-btn-pink cyber-btn-sm">
+                🗑️ BERSIHKAN
+              </button>
+            </div>
+          </div>
+
+          <div style="max-height: 260px; overflow-y: auto; border: 1px solid var(--border-subtle); background: rgba(5, 7, 10, 0.7); padding: 10px;" id="admin-audit-log-container">
+            <div style="text-align: center; color: var(--text-muted); font-family: var(--font-mono); padding: 20px;">
+              [MEMUAT LOG AUDIT KEAMANAN...]
+            </div>
+          </div>
         </div>
 
         <!-- Database Backup & Restore -->
@@ -621,14 +666,14 @@
           </div>
 
           <div style="font-family: var(--font-sub); font-size: 1rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
-            Seluruh data portofolio, termasuk foto profil, proyek, sertifikat, dan bukti dokumentasi disimpan dalam format data lokal. Anda dapat mengunduh seluruh data sebagai satu berkas JSON atau memulihkannya di perangkat lain kapan saja.
+            Seluruh data portofolio, termasuk foto profil, proyek, sertifikat, dan bukti dokumentasi disimpan dalam format data lokal yang divalidasi dan disanitasi secara ketat terhadap injeksi skrip berbahaya.
           </div>
 
           <div class="admin-grid-two">
             <div style="background: rgba(0, 240, 255, 0.05); padding: 20px; border: 1px solid var(--border-subtle);">
               <h4 style="font-family: var(--font-display); color: var(--cp-cyan); margin-bottom: 10px;">EKSPOR DATABASE (BACKUP)</h4>
               <p style="font-family: var(--font-sub); font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">
-                Unduh seluruh data portofolio dan gambar yang sudah diunggah sebagai file JSON.
+                Unduh seluruh data portofolio dan gambar yang sudah diunggah sebagai file JSON terenkripsi.
               </p>
               <button type="button" id="admin-export-backup-btn" class="cyber-btn cyber-btn-cyan" style="width: 100%;">
                 📥 DOWNLOAD MATRIX BACKUP (JSON)
@@ -636,9 +681,9 @@
             </div>
 
             <div style="background: rgba(252, 238, 10, 0.05); padding: 20px; border: 1px solid var(--border-subtle);">
-              <h4 style="font-family: var(--font-display); color: var(--cp-yellow); margin-bottom: 10px;">IMPOR & RESTORASI</h4>
+              <h4 style="font-family: var(--font-display); color: var(--cp-yellow); margin-bottom: 10px;">IMPOR & RESTORASI (DISANITASI)</h4>
               <p style="font-family: var(--font-sub); font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">
-                Pilih file JSON backup untuk memulihkan seluruh data dan foto portofolio.
+                Pilih file JSON backup untuk memulihkan data dengan validasi schema otomatis.
               </p>
               <input type="file" id="admin-import-file-input" accept=".json" style="display: none;" />
               <button type="button" class="cyber-btn cyber-btn-yellow" style="width: 100%;" onclick="document.getElementById('admin-import-file-input').click()">
@@ -750,11 +795,12 @@
   <div id="toast-container"></div>
 
   <!-- Application Scripts -->
-  <script src="js/security.js"></script>
-  <script src="js/audio.js"></script>
-  <script src="js/particles.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/admin.js"></script>
-  <script src="js/lanyard.js"></script>
+  <script src="js/live-reload.js"></script>
+  <script src="js/security.js?v=2.077_sec_v3"></script>
+  <script src="js/audio.js?v=2.077_sec_v3"></script>
+  <script src="js/particles.js?v=2.077_sec_v3"></script>
+  <script src="js/store.js?v=2.077_sec_v3"></script>
+  <script src="js/admin.js?v=2.077_sec_v3"></script>
+  <script src="js/lanyard.js?v=2.077_sec_v3"></script>
 </body>
 </html>

@@ -229,15 +229,22 @@ class CyberLanyard {
       }
     }
 
+    const esc = (s) => (window.cyberSecurity ? window.cyberSecurity.escapeHTML(s) : String(s || ''));
+    const safeUrl = (u) => (window.cyberSecurity ? window.cyberSecurity.sanitizeURL(u) : u || '#');
+
     const discordUser = data.discord_user || {};
-    const displayName = discordUser.global_name || discordUser.display_name || discordUser.username || 'Pushy Meong';
-    const username = discordUser.username || 'pushygamertag27';
-    const status = data.discord_status || 'offline';
+    const rawDisplayName = discordUser.global_name || discordUser.display_name || discordUser.username || 'Pushy Meong';
+    const rawUsername = discordUser.username || 'pushygamertag27';
+    const status = ['online', 'idle', 'dnd', 'offline'].includes(data.discord_status) ? data.discord_status : 'offline';
+
+    const displayName = esc(rawDisplayName);
+    const username = esc(rawUsername);
 
     // Discord Avatar URL
     let discordAvatar = 'https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png';
     if (discordUser.id && discordUser.avatar) {
-      discordAvatar = `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.${discordUser.avatar.startsWith('a_') ? 'gif' : 'png'}?size=128`;
+      const isGif = String(discordUser.avatar).startsWith('a_');
+      discordAvatar = `https://cdn.discordapp.com/avatars/${encodeURIComponent(discordUser.id)}/${encodeURIComponent(discordUser.avatar)}.${isGif ? 'gif' : 'png'}?size=128`;
     }
 
     let statusPill = `<span class="activity-status-pill status-${status}">● ${status.toUpperCase()}</span>`;
@@ -247,7 +254,7 @@ class CyberLanyard {
       widget.innerHTML = `
         <div class="activity-discord-profile-row">
           <div class="activity-discord-avatar-wrap">
-            <img src="${discordAvatar}" alt="${displayName}" class="activity-discord-avatar-img" />
+            <img src="${safeUrl(discordAvatar)}" alt="${displayName}" class="activity-discord-avatar-img" />
             <span class="activity-discord-status-dot status-${status}"></span>
           </div>
           <div class="activity-discord-user-info">
@@ -272,17 +279,23 @@ class CyberLanyard {
 
     // Active Media State: Displays Discord Profile + Media Player Card
     const fallbackImage = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230F131D"/><text x="50" y="55" fill="%2300F0FF" font-size="30" text-anchor="middle" dominant-baseline="middle">🎵</text></svg>`;
-    const mediaImg = activity.image || fallbackImage;
+    const mediaImg = safeUrl(activity.image || fallbackImage);
 
-    const isLink = activity.url && activity.url !== '#';
-    const linkTarget = isLink ? `href="${activity.url}" target="_blank" rel="noopener noreferrer"` : '';
+    const actTitle = esc(activity.title || 'Unknown Track');
+    const actArtist = esc(activity.artist || '');
+    const actPlatform = esc(activity.platform || 'Media');
+    const actIcon = esc(activity.platformIcon || '🎵');
+
+    const cleanUrl = safeUrl(activity.url);
+    const isLink = cleanUrl && cleanUrl !== '#';
+    const linkTarget = isLink ? `href="${cleanUrl}" target="_blank" rel="noopener noreferrer"` : '';
     const clickHint = isLink ? 'title="Klik untuk membuka link langsung ↗"' : '';
 
     widget.innerHTML = `
       <!-- 1. DISCORD PROFILE ROW (Separate from Portfolio Avatar) -->
       <div class="activity-discord-profile-row">
         <div class="activity-discord-avatar-wrap">
-          <img src="${discordAvatar}" alt="${displayName}" class="activity-discord-avatar-img" />
+          <img src="${safeUrl(discordAvatar)}" alt="${displayName}" class="activity-discord-avatar-img" />
           <span class="activity-discord-status-dot status-${status}"></span>
         </div>
         <div class="activity-discord-user-info">
@@ -305,24 +318,24 @@ class CyberLanyard {
       <!-- 2. NOW PLAYING / STREAMING MEDIA CARD -->
       <div class="activity-media-card">
         <div class="activity-platform-badge-row">
-          <span class="activity-platform-tag">${activity.platformIcon} ${activity.platform.toUpperCase()}</span>
+          <span class="activity-platform-tag">${actIcon} ${actPlatform.toUpperCase()}</span>
           <span class="activity-live-status-tag">● LIVE STREAM</span>
         </div>
 
         <div class="activity-body">
           <!-- Clickable Thumbnail / Album Art -->
           <a ${linkTarget} ${clickHint} class="activity-media-box">
-            <img src="${mediaImg}" alt="${activity.title}" />
+            <img src="${mediaImg}" alt="${actTitle}" />
             ${isLink ? `<div class="activity-media-hover-overlay"><span>↗</span></div>` : ''}
           </a>
 
           <!-- Track & Media Info -->
           <div class="activity-info">
             <div class="activity-track-title">
-              ${isLink ? `<a ${linkTarget} ${clickHint} class="activity-title-link">${activity.title}</a>` : `<span>${activity.title}</span>`}
+              ${isLink ? `<a ${linkTarget} ${clickHint} class="activity-title-link">${actTitle}</a>` : `<span>${actTitle}</span>`}
             </div>
             
-            ${activity.artist ? `<div class="activity-track-artist">${activity.artist}</div>` : ''}
+            ${actArtist ? `<div class="activity-track-artist">${actArtist}</div>` : ''}
 
             <!-- Real-Time Timeline Progress Bar -->
             <div class="activity-timeline-container" id="activity-timeline-box" style="${activity.timestamps ? 'display: block;' : 'display: none;'}">
@@ -340,7 +353,7 @@ class CyberLanyard {
         ${isLink ? `
           <div class="activity-footer-action">
             <a ${linkTarget} class="activity-direct-btn">
-              <span>${activity.platformIcon} BUKA DI ${activity.platform.toUpperCase()}</span>
+              <span>${actIcon} BUKA DI ${actPlatform.toUpperCase()}</span>
               <span>↗</span>
             </a>
           </div>

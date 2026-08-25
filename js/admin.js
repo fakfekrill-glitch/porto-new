@@ -89,13 +89,14 @@ function showAdminToast(message, type = 'yellow') {
 }
 
 // 1. SECURITY & AUTHENTICATION
-let failedAttempts = 0;
-
 function initSecurityAuth() {
   const loginView = document.getElementById('ice-login-screen');
   const dashboardView = document.getElementById('admin-dashboard-app');
   const loginForm = document.getElementById('ice-login-form');
   const pinInput = document.getElementById('ice-pin-input');
+  const lockoutBanner = document.getElementById('ice-lockout-banner');
+  const lockoutCountdown = document.getElementById('ice-lockout-countdown');
+  const submitBtn = document.getElementById('ice-submit-btn');
 
   // Check if already authenticated
   if (window.cyberStore && window.cyberStore.isAdminAuthenticated()) {
@@ -106,6 +107,28 @@ function initSecurityAuth() {
     if (loginView) loginView.style.display = 'flex';
     if (dashboardView) dashboardView.style.display = 'none';
   }
+
+  // Live Lockout Countdown Timer
+  setInterval(() => {
+    if (!window.cyberSecurity) return;
+    const lock = window.cyberSecurity.isCurrentlyLockedOut();
+    if (lock.isLocked) {
+      if (lockoutBanner) lockoutBanner.style.display = 'block';
+      if (lockoutCountdown) lockoutCountdown.textContent = `Terkunci: ${lock.remainingSeconds} detik tersisa`;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+      }
+    } else {
+      if (lockoutBanner) lockoutBanner.style.display = 'none';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+      }
+    }
+  }, 1000);
 
   // Handle Login Form Submit
   if (loginForm) {
@@ -118,39 +141,34 @@ function initSecurityAuth() {
         return;
       }
 
-      if (failedAttempts >= 5) {
-        if (window.cyberAudio) window.cyberAudio.playGlitch();
-        showAdminToast('ICE LOCKDOWN ACTIVE: Tunggu beberapa saat sebelum mencoba lagi.', 'pink');
-        return;
+      if (window.cyberSecurity) {
+        const lock = window.cyberSecurity.isCurrentlyLockedOut();
+        if (lock.isLocked) {
+          if (window.cyberAudio) window.cyberAudio.playGlitch();
+          showAdminToast(`ICE LOCKDOWN ACTIVE: Tunggu ${lock.remainingSeconds} detik.`, 'pink');
+          return;
+        }
       }
 
-      const success = window.cyberStore.loginAdmin(pinVal);
+      try {
+        const success = window.cyberStore.loginAdmin(pinVal);
 
-      if (success) {
-        if (window.cyberAudio) window.cyberAudio.playSuccess();
-        failedAttempts = 0;
-        showAdminToast('ICE BREACH SUCCESSFUL // ACCESS GRANTED', 'yellow');
-        if (loginView) loginView.style.display = 'none';
-        if (dashboardView) dashboardView.style.display = 'flex';
-        renderDashboardOverview();
-        notifyDiscordAdminAction("Admin Login Berhasil", "Seseorang telah berhasil login ke Admin Command Deck.", 61695);
-      } else {
-        failedAttempts++;
-        if (window.cyberAudio) window.cyberAudio.playGlitch();
-        showAdminToast(`PASSPHRASE SALAH! Percobaan gagal: ${failedAttempts}/5`, 'pink');
-
-        if (failedAttempts >= 5) {
-          showAdminToast('SISTEM TERKUNCI SELAMA 15 DETIK DEMI KEAMANAN!', 'pink');
-          notifyDiscordAdminAction("Peringatan: Percobaan Login Gagal (Lockdown)", `Percobaan login salah mencapai batas 5x. Sistem terkunci selama 15 detik.`, 16711740);
-          const submitBtn = loginForm.querySelector('button[type="submit"]');
-          if (submitBtn) submitBtn.disabled = true;
-
-          setTimeout(() => {
-            failedAttempts = 0;
-            if (submitBtn) submitBtn.disabled = false;
-            showAdminToast('LOCKDOWN BERAKHIR. Anda dapat mencoba kembali.', 'cyan');
-          }, 15000);
+        if (success) {
+          if (window.cyberAudio) window.cyberAudio.playSuccess();
+          showAdminToast('ICE BREACH SUCCESSFUL // ACCESS GRANTED', 'yellow');
+          if (loginView) loginView.style.display = 'none';
+          if (dashboardView) dashboardView.style.display = 'flex';
+          if (pinInput) pinInput.value = '';
+          renderDashboardOverview();
+          notifyDiscordAdminAction("Admin Login Berhasil", "Seseorang telah berhasil diautentikasi ke Admin Command Deck.", 61695);
+        } else {
+          if (window.cyberAudio) window.cyberAudio.playGlitch();
+          const lock = window.cyberSecurity ? window.cyberSecurity.isCurrentlyLockedOut() : { failedAttempts: 1 };
+          showAdminToast(`PASSPHRASE SALAH! Percobaan gagal: ${lock.failedAttempts}`, 'pink');
         }
+      } catch (err) {
+        if (window.cyberAudio) window.cyberAudio.playGlitch();
+        showAdminToast(err.message, 'pink');
       }
     });
   }
@@ -209,6 +227,7 @@ function initAdminNavigation() {
       if (targetTab === 'tab-arsenal') renderArsenalTab();
       if (targetTab === 'tab-certificates') renderCertificatesTab();
       if (targetTab === 'tab-documentation') renderDocumentationTab();
+      if (targetTab === 'tab-security') renderSecurityTab();
     });
   });
 }
@@ -925,6 +944,7 @@ function initForms() {
       a.click();
       URL.revokeObjectURL(url);
       showAdminToast('DATABASE MATRIX BERHASIL DIEKSPOR (JSON FILE)', 'cyan');
+      renderSecurityTab();
     });
   }
 
@@ -941,6 +961,7 @@ function initForms() {
             if (window.cyberAudio) window.cyberAudio.playSuccess();
             showAdminToast('DATABASE BERHASIL DIRESTORASI DARI BACKUP!', 'yellow');
             renderDashboardOverview();
+            renderSecurityTab();
             notifyDiscordAdminAction("Database Matrix Direstorasi", "Database portofolio berhasil dipulihkan dari berkas JSON backup.", 61695);
           } catch (err) {
             if (window.cyberAudio) window.cyberAudio.playGlitch();
@@ -951,4 +972,82 @@ function initForms() {
       }
     });
   }
+
+  // J. Security Audit Log Buttons
+  const btnRefreshAudit = document.getElementById('admin-refresh-audit-btn');
+  if (btnRefreshAudit) {
+    btnRefreshAudit.addEventListener('click', () => {
+      if (window.cyberAudio) window.cyberAudio.playScan();
+      renderSecurityTab();
+      showAdminToast('LOG AUDIT KEAMANAN DIPERBARUI', 'cyan');
+    });
+  }
+
+  const btnClearAudit = document.getElementById('admin-clear-audit-btn');
+  if (btnClearAudit) {
+    btnClearAudit.addEventListener('click', () => {
+      if (confirm('Yakin ingin membersihkan seluruh log audit keamanan?')) {
+        if (window.cyberSecurity) window.cyberSecurity.clearAuditLogs();
+        if (window.cyberAudio) window.cyberAudio.playClick();
+        renderSecurityTab();
+        showAdminToast('LOG AUDIT DIBERSIHKAN', 'pink');
+      }
+    });
+  }
+}
+
+// 10. RENDER SECURITY TAB & AUDIT LOGS
+function renderSecurityTab() {
+  const container = document.getElementById('admin-audit-log-container');
+  if (!container) return;
+
+  if (!window.cyberSecurity) {
+    container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 15px;">Security Matrix Unavailable.</div>';
+    return;
+  }
+
+  const logs = window.cyberSecurity.getAuditLogs();
+  if (logs.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; color: var(--text-muted); font-family: var(--font-mono); padding: 20px; font-size: 0.85rem;">
+        [SECURITY_STREAM_CLEAR] Belum ada log aktivitas keamanan yang tercatat.
+      </div>
+    `;
+    return;
+  }
+
+  const esc = (s) => (window.cyberSecurity ? window.cyberSecurity.escapeHTML(s) : String(s || ''));
+
+  container.innerHTML = logs
+    .map((log) => {
+      let badgeColor = 'var(--cp-cyan)';
+      let badgeBg = 'rgba(0, 240, 255, 0.1)';
+      if (log.level === 'WARN') {
+        badgeColor = 'var(--cp-yellow)';
+        badgeBg = 'rgba(252, 238, 10, 0.1)';
+      } else if (log.level === 'CRITICAL') {
+        badgeColor = 'var(--cp-pink)';
+        badgeBg = 'rgba(255, 0, 60, 0.15)';
+      } else if (log.level === 'SUCCESS') {
+        badgeColor = '#00FF66';
+        badgeBg = 'rgba(0, 255, 102, 0.1)';
+      }
+
+      const formattedDate = new Date(log.timestamp).toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      return `
+        <div style="display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: var(--font-mono); font-size: 0.8rem;">
+          <span style="color: var(--text-muted); font-size: 0.72rem; min-width: 65px;">[${esc(formattedDate)}]</span>
+          <span style="background: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeColor}; padding: 2px 8px; font-size: 0.68rem; font-weight: 700; border-radius: 2px; min-width: 90px; text-align: center;">
+            ${esc(log.action)}
+          </span>
+          <span style="color: #DDD; word-break: break-word; flex: 1;">${esc(log.details)}</span>
+        </div>
+      `;
+    })
+    .join('');
 }

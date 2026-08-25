@@ -393,6 +393,14 @@ class CyberStore {
     }
   }
 
+  computeSaltedHash(pin, salt, iterations = 1000) {
+    let current = String(pin) + "::" + String(salt);
+    for (let i = 0; i < iterations; i++) {
+      current = sha256Sync(current + "::" + i);
+    }
+    return current;
+  }
+
   getSecurity() {
     try {
       const data = JSON.parse(this.safeGetItem(this.STORAGE_KEYS.SECURITY));
@@ -411,16 +419,18 @@ class CyberStore {
     if (!inputPin) return false;
     const cleanInput = String(inputPin).trim();
     const sec = this.getSecurity();
-    const inputHash = this.hashString(cleanInput);
 
-    // 1. Check against stored SHA-256 hash
-    if (inputHash === sec.hash) {
-      return true;
+    // 1. Check if security uses multi-round salted hash
+    if (sec.salt && sec.iterations) {
+      const computedHash = this.computeSaltedHash(cleanInput, sec.salt, sec.iterations);
+      if (computedHash === sec.hash) {
+        return true;
+      }
     }
 
-    // 2. Fallback check for default password 'NETRUNNER2077'
-    const defaultHash = DEFAULT_SECURITY.hash;
-    if (inputHash === defaultHash || cleanInput.toUpperCase() === "NETRUNNER2077") {
+    // 2. Check standard single-round SHA-256 hash (legacy / initial default)
+    const inputHash = this.hashString(cleanInput);
+    if (inputHash === sec.hash) {
       return true;
     }
 
@@ -431,20 +441,26 @@ class CyberStore {
     if (!this.verifyPasscode(oldPin)) {
       throw new Error("Master Passphrase lama salah!");
     }
-    if (!newPin || String(newPin).trim().length < 4) {
-      throw new Error("Passphrase baru minimal 4 karakter!");
+    if (!newPin || String(newPin).trim().length < 6) {
+      throw new Error("Passphrase baru minimal 6 karakter demi standar keamanan ICE!");
     }
 
     const cleanNew = String(newPin).trim();
-    const newHash = this.hashString(cleanNew);
+    const salt = "MILITECH_SALT_" + Date.now() + "_" + Math.random().toString(36).substring(2, 12);
+    const iterations = 1000;
+    const newHash = this.computeSaltedHash(cleanNew, salt, iterations);
 
     const sec = {
       hash: newHash,
-      salt: "NIGHT_CITY_MILITECH_ICE_" + Date.now(),
+      salt: salt,
+      iterations: iterations,
       updatedAt: new Date().toISOString()
     };
 
     this.saveSecurity(sec);
+    if (window.cyberSecurity) {
+      window.cyberSecurity.logAuditEvent('PASSWORD_CHANGED', 'Master Passphrase berhasil diubah dengan 1000x Salted SHA-256 rounds.', 'SUCCESS');
+    }
     return true;
   }
 
@@ -737,19 +753,66 @@ class CyberStore {
       certificates: this.getCertificates(),
       documentation: this.getDocumentation()
     };
+    if (window.cyberSecurity) {
+      window.cyberSecurity.logAuditEvent('DATABASE_EXPORT', 'Database Matrix lengkap diekspor ke format JSON.', 'INFO');
+    }
     return JSON.stringify(exportData, null, 2);
   }
 
   importFullDatabaseJSON(jsonStr) {
     try {
+      if (typeof jsonStr !== 'string' || !jsonStr.trim()) {
+        throw new Error("Berkas JSON kosong atau tidak valid.");
+      }
+      
       const data = JSON.parse(jsonStr);
-      if (data.profile) this.saveProfile(data.profile);
-      if (data.arsenal) this.saveArsenal(data.arsenal);
-      if (data.projects) this.saveProjects(data.projects);
-      if (data.certificates) this.saveCertificates(data.certificates);
-      if (data.documentation) this.saveDocumentation(data.documentation);
+      if (!data || typeof data !== 'object') {
+        throw new Error("Format JSON harus berupa objek root.");
+      }
+
+      // Helper for deep safe sanitization
+      const sanitizeVal = (val) => {
+        if (typeof val === 'string') {
+          return window.cyberSecurity ? window.cyberSecurity.sanitizeInput(val) : val;
+        }
+        if (Array.isArray(val)) {
+          return val.map(sanitizeVal);
+        }
+        if (val && typeof val === 'object') {
+          const cleanObj = {};
+          for (const key of Object.keys(val)) {
+            if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
+            cleanObj[key] = sanitizeVal(val[key]);
+          }
+          return cleanObj;
+        }
+        return val;
+      };
+
+      if (data.profile && typeof data.profile === 'object') {
+        this.saveProfile(sanitizeVal(data.profile));
+      }
+      if (Array.isArray(data.arsenal)) {
+        this.saveArsenal(data.arsenal.map(sanitizeVal));
+      }
+      if (Array.isArray(data.projects)) {
+        this.saveProjects(data.projects.map(sanitizeVal));
+      }
+      if (Array.isArray(data.certificates)) {
+        this.saveCertificates(data.certificates.map(sanitizeVal));
+      }
+      if (Array.isArray(data.documentation)) {
+        this.saveDocumentation(data.documentation.map(sanitizeVal));
+      }
+
+      if (window.cyberSecurity) {
+        window.cyberSecurity.logAuditEvent('DATABASE_IMPORT', 'Database Matrix berhasil diimpor, divalidasi, dan disanitasi.', 'SUCCESS');
+      }
       return true;
     } catch (err) {
+      if (window.cyberSecurity) {
+        window.cyberSecurity.logAuditEvent('IMPORT_FAILED', 'Percobaan impor JSON ditolak: ' + err.message, 'WARN');
+      }
       throw new Error("Format berkas JSON Matrix tidak valid: " + err.message);
     }
   }
@@ -762,6 +825,9 @@ class CyberStore {
     this.saveCertificates(DEFAULT_CERTIFICATES);
     this.saveDocumentation(DEFAULT_DOCUMENTATION);
     this.saveSecurity(DEFAULT_SECURITY);
+    if (window.cyberSecurity) {
+      window.cyberSecurity.logAuditEvent('FACTORY_RESET', 'Semua konfigurasi database Matrix dikembalikan ke setelan default pabrik.', 'WARN');
+    }
   }
 }
 

@@ -4,8 +4,8 @@
   "description": "Cyberpunk 2077 Themed Interactive Portfolio - Fullstack Netrunner & Tech Mercenary",
   "main": "index.html",
   "scripts": {
-    "dev": "python3 -m http.server 3000",
-    "start": "python3 -m http.server 3000",
+    "dev": "python3 live_server.py 3000",
+    "start": "python3 live_server.py 3000",
     "build": "echo 'Build complete! Static assets ready for deployment.'"
   },
   "keywords": [
