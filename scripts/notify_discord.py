@@ -9,7 +9,7 @@ import os
 import json
 import urllib.request
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 
 WEBHOOK_URL = "https://discord.com/api/webhooks/1491025432034938911/OtSYXYA22qqU0C6iAwUorgQ-Qg0SAcmzfdKwmgGMsVxHlOFIBN_6ikQ5Ftf_C3S0pHT-"
 
@@ -102,7 +102,7 @@ def send_discord_update(summary=None, custom_files=None):
                 "footer": {
                     "text": "Night City Sentinel v2.077 // Webhook Telemetry Active"
                 },
-                "timestamp": datetime.utcnow().isoformat() + "Z"
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         ]
     }

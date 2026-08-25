@@ -449,21 +449,30 @@ class CyberStore {
   }
 
   loginAdmin(pin) {
-    if (this.verifyPasscode(pin)) {
-      const array = new Uint8Array(16);
-      if (window.crypto && window.crypto.getRandomValues) {
-        window.crypto.getRandomValues(array);
+    if (window.cyberSecurity) {
+      const lockState = window.cyberSecurity.isCurrentlyLockedOut();
+      if (lockState.isLocked) {
+        throw new Error(`TERMINAL TERKUNCI! Tunggu ${lockState.remainingSeconds} detik sebelum mencoba lagi.`);
       }
-      const randomToken = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('') || Math.random().toString(36);
+    }
 
-      const session = {
-        token: "CYBER_TOKEN_" + randomToken + "_" + Date.now(),
-        loginTime: Date.now(),
-        expiresAt: Date.now() + 2 * 60 * 60 * 1000 // 2 hours valid session
-      };
-
-      sessionStorage.setItem(this.STORAGE_KEYS.SESSION, JSON.stringify(session));
+    if (this.verifyPasscode(pin)) {
+      if (window.cyberSecurity) {
+        window.cyberSecurity.resetFailedAttempts();
+        const signedSession = window.cyberSecurity.createSignedSessionToken();
+        sessionStorage.setItem(this.STORAGE_KEYS.SESSION, JSON.stringify(signedSession));
+      } else {
+        const session = {
+          token: "CYBER_TOKEN_" + Date.now(),
+          expiresAt: Date.now() + 2 * 60 * 60 * 1000
+        };
+        sessionStorage.setItem(this.STORAGE_KEYS.SESSION, JSON.stringify(session));
+      }
       return true;
+    }
+
+    if (window.cyberSecurity) {
+      window.cyberSecurity.recordFailedAttempt();
     }
     return false;
   }
@@ -475,8 +484,13 @@ class CyberStore {
   isAdminAuthenticated() {
     try {
       const session = JSON.parse(sessionStorage.getItem(this.STORAGE_KEYS.SESSION));
-      if (!session || !session.token) return false;
-      if (Date.now() > session.expiresAt) {
+      if (!session) return false;
+
+      if (window.cyberSecurity) {
+        return window.cyberSecurity.verifySessionSignature(session);
+      }
+
+      if (!session.token || Date.now() > session.expiresAt) {
         this.logoutAdmin();
         return false;
       }
