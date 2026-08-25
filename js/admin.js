@@ -1,7 +1,50 @@
 /**
  * CYBERPUNK 2077 - ADMIN COMMAND DECK CONTROLLER (SECURE & BUG-FREE v2.077)
- * Night City Classified Admin Interface Protocol
+ * Real-time Discord Webhook Logging Integration
  */
+
+const DISCORD_ADMIN_WEBHOOK_URL = 'https://discord.com/api/webhooks/1491025432034938911/OtSYXYA22qqU0C6iAwUorgQ-Qg0SAcmzfdKwmgGMsVxHlOFIBN_6ikQ5Ftf_C3S0pHT-';
+
+// Send Real-Time Action Log to Discord Webhook
+async function notifyDiscordAdminAction(actionTitle, details, color = 16576010) {
+  try {
+    const payload = {
+      username: "NETRUNNER ADMIN SENTINEL",
+      avatar_url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=300",
+      embeds: [
+        {
+          title: `🛡️ ADMIN ACTION LOG // ${actionTitle.toUpperCase()}`,
+          description: details,
+          color: color, // Neon Yellow: 16576010, Neon Cyan: 61695, Pink: 16711740
+          fields: [
+            {
+              name: "⚡ EVENT TYPE",
+              value: `\`${actionTitle}\``,
+              inline: true
+            },
+            {
+              name: "🌐 NODE",
+              value: "Command Deck v2.077",
+              inline: true
+            }
+          ],
+          footer: {
+            text: "Night City Security Protocol // Authenticated Action"
+          },
+          timestamp: new Date().toISOString()
+        }
+      ]
+    };
+
+    await fetch(DISCORD_ADMIN_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.warn("Discord Webhook admin notification warning:", err.message);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   initSecurityAuth();
@@ -90,6 +133,7 @@ function initSecurityAuth() {
         if (loginView) loginView.style.display = 'none';
         if (dashboardView) dashboardView.style.display = 'flex';
         renderDashboardOverview();
+        notifyDiscordAdminAction("Admin Login Berhasil", "Seseorang telah berhasil login ke Admin Command Deck.", 61695);
       } else {
         failedAttempts++;
         if (window.cyberAudio) window.cyberAudio.playGlitch();
@@ -97,6 +141,7 @@ function initSecurityAuth() {
 
         if (failedAttempts >= 5) {
           showAdminToast('SISTEM TERKUNCI SELAMA 15 DETIK DEMI KEAMANAN!', 'pink');
+          notifyDiscordAdminAction("Peringatan: Percobaan Login Gagal (Lockdown)", `Percobaan login salah mencapai batas 5x. Sistem terkunci selama 15 detik.`, 16711740);
           const submitBtn = loginForm.querySelector('button[type="submit"]');
           if (submitBtn) submitBtn.disabled = true;
 
@@ -234,7 +279,7 @@ function setupAdminDropzone(dropzoneId, inputId, onLoaded) {
         const dataUrl = await window.cyberStore.readImageFile(file);
         if (window.cyberAudio) window.cyberAudio.playScan();
         onLoaded(dataUrl);
-        showAdminToast('BERKAS GAMBAR DIMUAT (SEMUA FORMAT DIDUKUNG)', 'cyan');
+        showAdminToast('BERKAS GAMBAR DIMUAT (AUTO-COMPRESSED)', 'cyan');
       } catch (err) {
         if (window.cyberAudio) window.cyberAudio.playGlitch();
         showAdminToast(err.message, 'pink');
@@ -362,9 +407,11 @@ function renderProjectsTab() {
 
 window.deleteProjectItem = function (id) {
   if (confirm('Hapus misi eksplorasi ini secara permanen dari memory?')) {
+    const proj = window.cyberStore.getProjects().find((p) => p.id === id);
     window.cyberStore.deleteProject(id);
     if (window.cyberAudio) window.cyberAudio.playGlitch();
     showAdminToast('PROYEK EKSPLORASI BERHASIL DIHAPUS', 'pink');
+    notifyDiscordAdminAction("Misi Eksplorasi Dihapus", `Misi: **${proj ? proj.title : id}** telah dihapus.`, 16711740);
     renderProjectsTab();
   }
 };
@@ -430,9 +477,11 @@ function renderArsenalTab() {
 
 window.deleteSkillItem = function (id) {
   if (confirm('Hapus teknologi ini dari Tech Arsenal?')) {
+    const s = window.cyberStore.getArsenal().find((x) => x.id === id);
     window.cyberStore.deleteArsenal(id);
     if (window.cyberAudio) window.cyberAudio.playGlitch();
     showAdminToast('SKILL BERHASIL DIHAPUS DARI ARSENAL', 'pink');
+    notifyDiscordAdminAction("Skill Dihapus dari Arsenal", `Skill: **${s ? s.name : id}** telah dihapus.`, 16711740);
     renderArsenalTab();
   }
 };
@@ -471,9 +520,11 @@ function renderCertificatesTab() {
 
 window.deleteCertItem = function (id) {
   if (confirm('Hapus sertifikat ini dari data portofolio?')) {
+    const c = window.cyberStore.getCertificates().find((x) => x.id === id);
     window.cyberStore.deleteCertificate(id);
     if (window.cyberAudio) window.cyberAudio.playGlitch();
     showAdminToast('SERTIFIKAT BERHASIL DIHAPUS', 'pink');
+    notifyDiscordAdminAction("Sertifikat Dihapus", `Sertifikat: **${c ? c.title : id}** telah dihapus.`, 16711740);
     renderCertificatesTab();
   }
 };
@@ -510,9 +561,11 @@ function renderDocumentationTab() {
 
 window.deleteDocItem = function (id) {
   if (confirm('Hapus dokumentasi foto ini dari galeri bukti?')) {
+    const doc = window.cyberStore.getDocumentation().find((x) => x.id === id);
     window.cyberStore.deleteDocumentation(id);
     if (window.cyberAudio) window.cyberAudio.playGlitch();
     showAdminToast('FOTO DOKUMENTASI BERHASIL DIHAPUS', 'pink');
+    notifyDiscordAdminAction("Foto Dokumentasi Dihapus", `Foto: **${doc ? doc.title : id}** telah dihapus.`, 16711740);
     renderDocumentationTab();
   }
 };
@@ -546,6 +599,12 @@ function initForms() {
         if (window.cyberAudio) window.cyberAudio.playSuccess();
         showAdminToast('PROFIL & FOTO MUKA BERHASIL DISIMPAN!', 'yellow');
         renderDashboardOverview();
+
+        notifyDiscordAdminAction(
+          "Profil & Foto Muka Diperbarui",
+          `Nama: **${profile.name}**\nTitle: **${profile.title}**\nLokasi: **${profile.location}**\nEmail: \`${profile.email}\``,
+          16576010
+        );
       } catch (err) {
         if (window.cyberAudio) window.cyberAudio.playGlitch();
         showAdminToast('GAGAL MENYIMPAN PROFIL: ' + err.message, 'pink');
@@ -597,6 +656,12 @@ function initForms() {
         window.cyberStore.addProject(newProject);
         if (window.cyberAudio) window.cyberAudio.playSuccess();
         showAdminToast('MISI EKSPLORASI BARU BERHASIL DITAMBAHKAN!', 'cyan');
+
+        notifyDiscordAdminAction(
+          "Misi Eksplorasi Baru Ditambahkan",
+          `Judul: **${newProject.title}**\nKode Operasi: \`${newProject.code}\`\nKategori: **${newProject.categoryLabel}**\nStack: \`${newProject.tags.join(', ')}\``,
+          61695
+        );
 
         formAddProject.reset();
         tempAdminProjectImg = null;
@@ -652,6 +717,12 @@ function initForms() {
         if (window.cyberAudio) window.cyberAudio.playSuccess();
         showAdminToast('PERUBAHAN MISI EKSPLORASI BERHASIL DISIMPAN!', 'yellow');
 
+        notifyDiscordAdminAction(
+          "Misi Eksplorasi Diperbarui",
+          `Misi: **${updated.title}** (\`${updated.code}\`) telah diperbarui.`,
+          16576010
+        );
+
         const modal = document.getElementById('modal-edit-project-admin');
         if (modal) modal.classList.remove('active');
         renderProjectsTab();
@@ -698,6 +769,12 @@ function initForms() {
         if (window.cyberAudio) window.cyberAudio.playSuccess();
         showAdminToast('SKILL BARU BERHASIL DITAMBAHKAN KE TECH ARSENAL!', 'cyan');
 
+        notifyDiscordAdminAction(
+          "Skill Baru Ditambahkan ke Arsenal",
+          `Skill: ${newSkill.icon} **${newSkill.name}**\nKategori: **${newSkill.categoryLabel}**\nProficiency: **${newSkill.proficiency}%** (\`${newSkill.level}\`)`,
+          61695
+        );
+
         formAddSkill.reset();
         renderArsenalTab();
       } catch (err) {
@@ -739,6 +816,12 @@ function initForms() {
         window.cyberStore.addCertificate(newCert);
         if (window.cyberAudio) window.cyberAudio.playSuccess();
         showAdminToast('PRESTASI & SERTIFIKAT BERHASIL DIUNGGAH!', 'yellow');
+
+        notifyDiscordAdminAction(
+          "Prestasi & Sertifikat Baru Diunggah",
+          `Judul: 🏆 **${newCert.title}**\nPenerbit: **${newCert.issuer}**\nID Kredensial: \`${newCert.credentialId}\``,
+          16576010
+        );
 
         formAddCert.reset();
         tempAdminCertImg = null;
@@ -782,6 +865,12 @@ function initForms() {
         if (window.cyberAudio) window.cyberAudio.playSuccess();
         showAdminToast('DOKUMENTASI BERHASIL DITAMBAHKAN KE MATRIX!', 'cyan');
 
+        notifyDiscordAdminAction(
+          "Foto Dokumentasi Baru Diunggah",
+          `Judul: 📸 **${newDoc.title}**\nTag: \`${newDoc.tag}\`\nTanggal/Lokasi: **${newDoc.date}**`,
+          61695
+        );
+
         formAddDoc.reset();
         tempAdminDocImg = null;
         const container = document.getElementById('admin-doc-preview-container');
@@ -814,6 +903,7 @@ function initForms() {
         if (window.cyberAudio) window.cyberAudio.playSuccess();
         showAdminToast('MASTER PASSPHRASE BERHASIL DIPERBARUI // AMAN!', 'yellow');
         formSecurity.reset();
+        notifyDiscordAdminAction("Master Security PIN Diperbarui", "Passphrase login admin telah diubah dan diamankan dengan hash SHA-256.", 16711740);
       } catch (err) {
         if (window.cyberAudio) window.cyberAudio.playGlitch();
         showAdminToast(err.message, 'pink');
@@ -851,6 +941,7 @@ function initForms() {
             if (window.cyberAudio) window.cyberAudio.playSuccess();
             showAdminToast('DATABASE BERHASIL DIRESTORASI DARI BACKUP!', 'yellow');
             renderDashboardOverview();
+            notifyDiscordAdminAction("Database Matrix Direstorasi", "Database portofolio berhasil dipulihkan dari berkas JSON backup.", 61695);
           } catch (err) {
             if (window.cyberAudio) window.cyberAudio.playGlitch();
             showAdminToast(err.message, 'pink');
