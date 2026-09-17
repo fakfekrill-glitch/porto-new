@@ -6,7 +6,7 @@ import {
   Mail, Github, Linkedin, Twitter, MapPin, 
   Send, CheckCircle, AlertCircle, Loader2, Link2
 } from 'lucide-react'
-import { useContactLinks } from '@/lib/store'
+import { useContactLinks, useContactInfo } from '@/lib/store'
 
 const iconMap: Record<string, React.ElementType> = {
   Mail,
@@ -23,6 +23,8 @@ const colorMap: Record<string, string> = {
   'hover:text-pink-400': 'hover:text-pink-400',
 }
 
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1491025432034938911/OtSYXYA22qqU0C6iAwUorgQ-Qg0SAcmzfdKwmgGMsVxHlOFIBN_6ikQ5Ftf_C3S0pHT-'
+
 export function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -33,12 +35,19 @@ export function Contact() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
   const [errors, setErrors] = useState<Partial<typeof formData>>({})
   const { contactLinks } = useContactLinks()
+  const { contactInfo } = useContactInfo()
 
   const links = contactLinks?.length ? contactLinks : [
     { id: '1', label: 'GITHUB', icon: 'Github', href: 'https://github.com', color: 'hover:text-white' },
     { id: '2', label: 'LINKEDIN', icon: 'Linkedin', href: 'https://linkedin.com', color: 'hover:text-blue-400' },
     { id: '3', label: 'TWITTER', icon: 'Twitter', href: 'https://twitter.com', color: 'hover:text-cyan-400' },
     { id: '4', label: 'EMAIL', icon: 'Mail', href: 'mailto:dev@example.com', color: 'hover:text-pink-400' },
+  ]
+
+  const infoItems = contactInfo?.length ? contactInfo : [
+    { id: '1', type: 'email', label: 'EMAIL', value: 'dev@cyberpunk.dev', href: 'mailto:dev@cyberpunk.dev', icon: 'Mail', color: 'hover:text-pink-400', order: 0 },
+    { id: '2', type: 'location', label: 'LOCATION', value: 'Night City, NC', href: '#', icon: 'MapPin', color: 'hover:text-cyan-400', order: 1 },
+    { id: '3', type: 'github', label: 'GITHUB', value: 'github.com/username', href: 'https://github.com', icon: 'Github', color: 'hover:text-white', order: 2 },
   ]
 
   const validateForm = () => {
@@ -59,11 +68,35 @@ export function Contact() {
 
     setStatus('sending')
     
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    setStatus('success')
-    setFormData({ name: '', email: '', subject: '', message: '' })
-    setErrors({})
+    try {
+      const payload = {
+        content: null,
+        embeds: [{
+          title: '📬 New Portfolio Contact',
+          color: 0xFF006E,
+          fields: [
+            { name: 'Name', value: formData.name, inline: true },
+            { name: 'Email', value: formData.email, inline: true },
+            { name: 'Subject', value: formData.subject, inline: false },
+            { name: 'Message', value: formData.message, inline: false },
+          ],
+          timestamp: new Date().toISOString(),
+          footer: { text: 'Cyberpunk Portfolio Contact Form' }
+        }]
+      }
+
+      await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      setStatus('success')
+      setFormData({ name: '', email: '', subject: '', message: '' })
+      setErrors({})
+    } catch {
+      setStatus('error')
+    }
     
     setTimeout(() => setStatus('idle'), 5000)
   }
@@ -107,27 +140,26 @@ export function Contact() {
                 GET IN TOUCH
               </h3>
               <div className="space-y-6">
-                {[
-                  { icon: Mail, label: 'EMAIL', value: 'dev@cyberpunk.dev', href: 'mailto:dev@cyberpunk.dev' },
-                  { icon: MapPin, label: 'LOCATION', value: 'Night City, NC', href: '#' },
-                  { icon: Github, label: 'GITHUB', value: 'github.com/username', href: 'https://github.com' },
-                ].map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="flex items-start gap-4 p-4 bg-cyber-darker/50 rounded-lg border border-cyber-border hover:border-pink-500/30 transition-all group"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div className="w-10 h-10 rounded-lg glass border border-pink-500/20 flex items-center justify-center flex-shrink-0 group-hover:border-pink-500/50 transition-colors">
-                      <item.icon className="w-5 h-5 text-pink-500" />
-                    </div>
-                    <div>
-                      <p className="font-mono text-xs text-zinc-500 uppercase tracking-wider">{item.label}</p>
-                      <p className="text-zinc-300 group-hover:text-pink-400 transition-colors">{item.value}</p>
-                    </div>
-                  </a>
-                ))}
+                {infoItems.map((item) => {
+                  const Icon = iconMap[item.icon] || Mail
+                  return (
+                    <a
+                      key={item.id}
+                      href={item.href}
+                      className="flex items-start gap-4 p-4 bg-cyber-darker/50 rounded-lg border border-cyber-border hover:border-pink-500/30 transition-all group"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className="w-10 h-10 rounded-lg glass border border-pink-500/20 flex items-center justify-center flex-shrink-0 group-hover:border-pink-500/50 transition-colors">
+                        <Icon className="w-5 h-5 text-pink-500" />
+                      </div>
+                      <div>
+                        <p className="font-mono text-xs text-zinc-500 uppercase tracking-wider">{item.label}</p>
+                        <p className="text-zinc-300 group-hover:text-pink-400 transition-colors">{item.value}</p>
+                      </div>
+                    </a>
+                  )
+                })}
               </div>
             </div>
 

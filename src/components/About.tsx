@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { User, Award, Briefcase, Heart, Brain, Zap } from 'lucide-react'
 import { useAboutData } from '@/lib/store'
+import { DiscordActivity } from './DiscordActivity'
 
 const iconMap: Record<string, React.ElementType> = {
   Award,
@@ -40,7 +41,7 @@ export function About() {
     <section id="about" className="relative py-20 md:py-32 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -51,6 +52,16 @@ export function About() {
           <p className="section-subtitle mx-auto">
             Passionate developer crafting digital experiences that push boundaries
           </p>
+        </motion.div>
+
+        <motion.div
+          className="mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <DiscordActivity />
         </motion.div>
 
         <motion.div

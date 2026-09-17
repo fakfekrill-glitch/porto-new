@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Lock, Unlock, LogOut, Settings, Image, FileText, Plus, Trash2, Edit, Upload, GripVertical, Save, X, Globe, Github, Link2, LayoutDashboard, User, Crop, Check, RotateCcw } from 'lucide-react'
+import { Lock, Unlock, LogOut, Settings, Image, FileText, Plus, Trash2, Edit, Upload, GripVertical, Save, X, Globe, Github, Link2, LayoutDashboard, User, Crop, Check, RotateCcw, Mail } from 'lucide-react'
 import ReactCrop from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
-import { useCertificates, useProjects, useContactLinks, useAboutData, useProfileData } from '@/lib/store'
+import { useCertificates, useProjects, useContactLinks, useContactInfo, useAboutData, useProfileData } from '@/lib/store'
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'cyberpunk2077'
 
@@ -13,10 +13,10 @@ export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [passwordError, setPasswordError] = useState(false)
-  const [activeTab, setActiveTab] = useState<'certificates' | 'projects' | 'contact-links' | 'about' | 'profile'>('certificates')
+  const [activeTab, setActiveTab] = useState<'certificates' | 'projects' | 'contact-links' | 'contact-info' | 'about' | 'profile'>('certificates')
   const [showModal, setShowModal] = useState(false)
   const [editingItem, setEditingItem] = useState<{ type: string; id: string } | null>(null)
-  const [modalType, setModalType] = useState<'certificate' | 'project' | 'contact' | 'timeline' | 'profile'>('certificate')
+  const [modalType, setModalType] = useState<'certificate' | 'project' | 'contact' | 'timeline' | 'profile' | 'contactInfo'>('certificate')
   const [formData, setFormData] = useState({
     title: '',
     image: '',
@@ -29,6 +29,10 @@ export default function AdminDashboard() {
     company: '',
     desc: '',
     tech: '',
+    type: 'email',
+    value: '',
+    icon: 'Mail',
+    color: 'hover:text-pink-400',
   })
   const [imageError, setImageError] = useState('')
   const [crop, setCrop] = useState({ x: 0, y: 0, width: 200, height: 200, unit: 'px' as const })
@@ -38,6 +42,7 @@ export default function AdminDashboard() {
   const { certificates, addCertificate, updateCertificate, deleteCertificate, initializeDefaults: initCerts } = useCertificates()
   const { projects, addProject, updateProject, deleteProject, initializeDefaults: initProjs } = useProjects()
   const { contactLinks, addContactLink, updateContactLink, deleteContactLink, initializeDefaults: initContactLinks } = useContactLinks()
+  const { contactInfo, addContactInfo, updateContactInfo, deleteContactInfo, initializeDefaults: initContactInfo } = useContactInfo()
   const { aboutData, updateAboutData, addTimelineItem, updateTimelineItem, deleteTimelineItem, initializeDefaults: initAbout } = useAboutData()
   const { profileData, updateProfileData, initializeDefaults: initProfileData } = useProfileData()
 
@@ -87,6 +92,7 @@ export default function AdminDashboard() {
       case 'certificates': return certificates
       case 'projects': return projects
       case 'contact-links': return contactLinks
+      case 'contact-info': return contactInfo
       case 'about': return aboutData.timeline
       case 'profile': return [{ ...profileData, id: 'profile' }]
       default: return []
@@ -98,6 +104,7 @@ export default function AdminDashboard() {
       case 'certificates': return 'CERTIFICATES'
       case 'projects': return 'PROJECTS'
       case 'contact-links': return 'CONTACT LINKS'
+      case 'contact-info': return 'CONTACT INFO'
       case 'about': return 'ABOUT'
       case 'profile': return 'PROFILE'
       default: return 'CERTIFICATES'
@@ -109,6 +116,7 @@ export default function AdminDashboard() {
       case 'certificates': return 'Drag to reorder • Click to edit • Hover for actions'
       case 'projects': return 'Manage project screenshots with links'
       case 'contact-links': return 'Customize social/contact links in footer & contact page'
+      case 'contact-info': return 'Manage contact details in Get In Touch section'
       case 'about': return 'Edit bio, philosophy, timeline & stats'
       case 'profile': return 'Update name, subtitle & bio (photo: replace /public/images/profile/avatar.svg)'
       default: return ''
@@ -120,6 +128,7 @@ export default function AdminDashboard() {
       case 'certificates': return 'certificate'
       case 'projects': return 'project'
       case 'contact-links': return 'contact'
+      case 'contact-info': return 'contactInfo'
       case 'about': return 'timeline'
       case 'profile': return 'profile'
       default: return 'certificate'
@@ -141,6 +150,10 @@ export default function AdminDashboard() {
       company: '',
       desc: '',
       tech: '',
+      type: 'email',
+      value: '',
+      icon: 'Mail',
+      color: 'hover:text-pink-400',
     })
     setImageError('')
     setShowModal(true)
@@ -151,19 +164,22 @@ export default function AdminDashboard() {
     setEditingItem({ type: getModalType(), id: item.id })
     switch(getModalType()) {
       case 'certificate':
-        setFormData({ title: item.title, image: item.image, imagePreview: item.image, liveUrl: '#', githubUrl: '#', href: '', label: '', year: '', company: '', desc: '', tech: '' })
+        setFormData({ title: item.title, image: item.image, imagePreview: item.image, liveUrl: '#', githubUrl: '#', href: '', label: '', year: '', company: '', desc: '', tech: '', type: '', value: '', icon: '', color: '' })
         break
       case 'project':
-        setFormData({ title: item.title, image: item.image, imagePreview: item.image, liveUrl: item.liveUrl || '#', githubUrl: item.githubUrl || '#', href: '', label: '', year: '', company: '', desc: '', tech: '' })
+        setFormData({ title: item.title, image: item.image, imagePreview: item.image, liveUrl: item.liveUrl || '#', githubUrl: item.githubUrl || '#', href: '', label: '', year: '', company: '', desc: '', tech: '', type: '', value: '', icon: '', color: '' })
         break
       case 'contact':
-        setFormData({ title: '', image: '', imagePreview: '', liveUrl: '#', githubUrl: '#', href: item.href, label: item.label, year: '', company: '', desc: '', tech: '' })
+        setFormData({ title: '', image: '', imagePreview: '', liveUrl: '#', githubUrl: '#', href: item.href, label: item.label, year: '', company: '', desc: '', tech: '', type: '', value: '', icon: '', color: '' })
+        break
+      case 'contactInfo':
+        setFormData({ title: '', image: '', imagePreview: '', liveUrl: '#', githubUrl: '#', href: item.href, label: item.label, year: '', company: '', desc: '', tech: '', type: item.type, value: item.value, icon: item.icon, color: item.color })
         break
       case 'timeline':
-        setFormData({ title: item.title, image: '', imagePreview: '', liveUrl: '#', githubUrl: '#', href: '', label: '', year: item.year, company: item.company, desc: item.desc, tech: item.tech.join(', ') })
+        setFormData({ title: item.title, image: '', imagePreview: '', liveUrl: '#', githubUrl: '#', href: '', label: '', year: item.year, company: item.company, desc: item.desc, tech: item.tech.join(', '), type: '', value: '', icon: '', color: '' })
         break
       case 'profile':
-        setFormData({ title: profileData.name, image: '', imagePreview: '', liveUrl: '#', githubUrl: '#', href: '', label: profileData.subtitle, year: '', company: '', desc: profileData.description, tech: '' })
+        setFormData({ title: profileData.name, image: '', imagePreview: '', liveUrl: '#', githubUrl: '#', href: '', label: profileData.subtitle, year: '', company: '', desc: profileData.description, tech: '', type: '', value: '', icon: '', color: '' })
         break
     }
     setImageError('')
@@ -171,8 +187,9 @@ export default function AdminDashboard() {
   }
 
   const handleSave = () => {
-    if (!formData.title.trim()) { alert('Title is required'); return }
-    if (!formData.image && modalType !== 'contact' && modalType !== 'timeline') { alert('Please upload an image'); return }
+    if (!formData.title.trim() && modalType !== 'contactInfo') { alert('Title is required'); return }
+    if (!formData.label.trim() && modalType === 'contactInfo') { alert('Label is required'); return }
+    if (!formData.image && modalType !== 'contact' && modalType !== 'timeline' && modalType !== 'contactInfo') { alert('Please upload an image'); return }
 
     if (modalType === 'certificate') {
       if (editingItem?.id) updateCertificate(editingItem.id, { title: formData.title, image: formData.image })
@@ -183,6 +200,10 @@ export default function AdminDashboard() {
     } else if (modalType === 'contact') {
       if (editingItem?.id) updateContactLink(editingItem.id, { label: formData.label, href: formData.href, color: 'hover:text-pink-400' })
       else addContactLink({ label: formData.label, href: formData.href, icon: 'Link2', color: 'hover:text-pink-400', order: contactLinks.length })
+    } else if (modalType === 'contactInfo') {
+      const contactType = formData.type as 'email' | 'location' | 'github' | 'custom'
+      if (editingItem?.id) updateContactInfo(editingItem.id, { label: formData.label, value: formData.value, href: formData.href, icon: formData.icon, color: formData.color, type: contactType })
+      else addContactInfo({ label: formData.label, value: formData.value, href: formData.href, icon: formData.icon, color: formData.color, type: contactType, order: contactInfo.length })
     } else if (modalType === 'timeline') {
       if (editingItem?.id) updateTimelineItem(editingItem.id, { year: formData.year, title: formData.title, company: formData.company, desc: formData.desc, tech: formData.tech.split(',').map(s => s.trim()).filter(Boolean) })
       else addTimelineItem({ year: formData.year, title: formData.title, company: formData.company, desc: formData.desc, tech: formData.tech.split(',').map(s => s.trim()).filter(Boolean), order: aboutData.timeline.length })
@@ -197,6 +218,7 @@ export default function AdminDashboard() {
     if (activeTab === 'certificates') deleteCertificate(id)
     else if (activeTab === 'projects') deleteProject(id)
     else if (activeTab === 'contact-links') deleteContactLink(id)
+    else if (activeTab === 'contact-info') deleteContactInfo(id)
     else if (activeTab === 'about') deleteTimelineItem(id)
   }
 
@@ -257,6 +279,9 @@ export default function AdminDashboard() {
             <button onClick={() => setActiveTab('contact-links')} className={`px-6 py-2 font-mono text-sm uppercase tracking-wider rounded-t-lg transition-all ${activeTab === 'contact-links' ? 'bg-purple-500/20 text-purple-400 border-b-2 border-purple-500' : 'text-zinc-500 hover:text-zinc-300'}`}>
               <Link2 className="w-4 h-4 mr-2 inline" /> CONTACT LINKS <span className="ml-2 px-2 py-0.5 text-xs bg-purple-500/20 text-purple-400 rounded">{contactLinks.length}</span>
             </button>
+            <button onClick={() => setActiveTab('contact-info')} className={`px-6 py-2 font-mono text-sm uppercase tracking-wider rounded-t-lg transition-all ${activeTab === 'contact-info' ? 'bg-orange-500/20 text-orange-400 border-b-2 border-orange-500' : 'text-zinc-500 hover:text-zinc-300'}`}>
+              <Mail className="w-4 h-4 mr-2 inline" /> CONTACT INFO <span className="ml-2 px-2 py-0.5 text-xs bg-orange-500/20 text-orange-400 rounded">{contactInfo.length}</span>
+            </button>
             <button onClick={() => setActiveTab('about')} className={`px-6 py-2 font-mono text-sm uppercase tracking-wider rounded-t-lg transition-all ${activeTab === 'about' ? 'bg-green-500/20 text-green-400 border-b-2 border-green-500' : 'text-zinc-500 hover:text-zinc-300'}`}>
               <LayoutDashboard className="w-4 h-4 mr-2 inline" /> ABOUT <span className="ml-2 px-2 py-0.5 text-xs bg-green-500/20 text-green-400 rounded">{aboutData.timeline.length} items</span>
             </button>
@@ -301,9 +326,7 @@ export default function AdminDashboard() {
                     <div className="absolute inset-0 bg-gradient-to-t from-cyber-darker/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                       <button onClick={() => openEditModal(item)} className="w-9 h-9 rounded-lg glass border border-cyan-500/30 flex items-center justify-center text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500 transition-all" aria-label="Edit"><Edit className="w-4 h-4" /></button>
-                      {activeTab !== 'profile' && (
-                        <button onClick={() => handleDelete(item.id)} className="w-9 h-9 rounded-lg glass border border-red-500/30 flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:border-red-500 transition-all" aria-label="Delete"><Trash2 className="w-4 h-4" /></button>
-                      )}
+                      <button onClick={() => handleDelete(item.id)} className="w-9 h-9 rounded-lg glass border border-red-500/30 flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:border-red-500 transition-all" aria-label="Delete"><Trash2 className="w-4 h-4" /></button>
                     </div>
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                       {item.dateAdded && <span className="font-mono text-xs bg-cyber-darker/80 px-2 py-1 rounded border border-pink-500/30 text-pink-400">{new Date(item.dateAdded).toLocaleDateString()}</span>}
@@ -362,6 +385,21 @@ export default function AdminDashboard() {
                     <>
                       <input type="text" placeholder="LABEL (e.g. GITHUB, EMAIL)" value={formData.label} onChange={e => setFormData(prev => ({ ...prev, label: e.target.value }))} className="input-cyber" required />
                       <input type="url" placeholder="LINK URL (e.g. https://github.com/you, mailto:you@email.com)" value={formData.href} onChange={e => setFormData(prev => ({ ...prev, href: e.target.value }))} className="input-cyber" required />
+                    </>
+                  )}
+                  {modalType === 'contactInfo' && (
+                    <>
+                      <input type="text" placeholder="LABEL (e.g. EMAIL, LOCATION, GITHUB)" value={formData.label} onChange={e => setFormData(prev => ({ ...prev, label: e.target.value }))} className="input-cyber" required />
+                      <input type="text" placeholder="VALUE (e.g. dev@email.com, Night City, NC, github.com/you)" value={formData.value} onChange={e => setFormData(prev => ({ ...prev, value: e.target.value }))} className="input-cyber" required />
+                      <input type="url" placeholder="LINK URL (e.g. mailto:dev@email.com, #, https://github.com/you)" value={formData.href} onChange={e => setFormData(prev => ({ ...prev, href: e.target.value }))} className="input-cyber" required />
+                      <select value={formData.type} onChange={e => setFormData(prev => ({ ...prev, type: e.target.value }))} className="input-cyber">
+                        <option value="email">EMAIL</option>
+                        <option value="location">LOCATION</option>
+                        <option value="github">GITHUB</option>
+                        <option value="custom">CUSTOM</option>
+                      </select>
+                      <input type="text" placeholder="ICON NAME (Mail, MapPin, Github, Link2, Twitter, Linkedin)" value={formData.icon} onChange={e => setFormData(prev => ({ ...prev, icon: e.target.value }))} className="input-cyber" />
+                      <input type="text" placeholder="COLOR CLASS (hover:text-pink-400, hover:text-cyan-400, etc.)" value={formData.color} onChange={e => setFormData(prev => ({ ...prev, color: e.target.value }))} className="input-cyber" />
                     </>
                   )}
                   {modalType === 'timeline' && (

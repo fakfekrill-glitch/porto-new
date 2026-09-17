@@ -26,6 +26,17 @@ export interface ContactLink {
   order: number
 }
 
+export interface ContactInfo {
+  id: string
+  type: 'email' | 'location' | 'github' | 'custom'
+  label: string
+  value: string
+  href: string
+  icon: string
+  color: string
+  order: number
+}
+
 export interface TimelineItem {
   id: string
   year: string
@@ -56,6 +67,7 @@ interface PortfolioStore {
   certificates: Certificate[]
   projects: Project[]
   contactLinks: ContactLink[]
+  contactInfo: ContactInfo[]
   aboutData: AboutData
   profileData: ProfileData
 
@@ -74,6 +86,11 @@ interface PortfolioStore {
   deleteContactLink: (id: string) => void
   reorderContactLinks: (links: ContactLink[]) => void
 
+  addContactInfo: (info: Omit<ContactInfo, 'id'>) => void
+  updateContactInfo: (id: string, data: Partial<ContactInfo>) => void
+  deleteContactInfo: (id: string) => void
+  reorderContactInfo: (infos: ContactInfo[]) => void
+
   updateAboutData: (data: Partial<AboutData>) => void
   addTimelineItem: (item: Omit<TimelineItem, 'id'>) => void
   updateTimelineItem: (id: string, data: Partial<TimelineItem>) => void
@@ -91,6 +108,12 @@ const defaultContactLinks: ContactLink[] = [
   { id: '2', label: 'LINKEDIN', icon: 'Linkedin', href: 'https://linkedin.com', color: 'hover:text-blue-400', order: 1 },
   { id: '3', label: 'TWITTER', icon: 'Twitter', href: 'https://twitter.com', color: 'hover:text-cyan-400', order: 2 },
   { id: '4', label: 'EMAIL', icon: 'Mail', href: 'mailto:dev@example.com', color: 'hover:text-pink-400', order: 3 },
+]
+
+const defaultContactInfo: ContactInfo[] = [
+  { id: '1', type: 'email', label: 'EMAIL', value: 'dev@cyberpunk.dev', href: 'mailto:dev@cyberpunk.dev', icon: 'Mail', color: 'hover:text-pink-400', order: 0 },
+  { id: '2', type: 'location', label: 'LOCATION', value: 'Night City, NC', href: '#', icon: 'MapPin', color: 'hover:text-cyan-400', order: 1 },
+  { id: '3', type: 'github', label: 'GITHUB', value: 'github.com/username', href: 'https://github.com', icon: 'Github', color: 'hover:text-white', order: 2 },
 ]
 
 const defaultAboutData: AboutData = {
@@ -150,14 +173,16 @@ export const usePortfolioStore = create<PortfolioStore>()(
       certificates: [],
       projects: [],
       contactLinks: [],
+      contactInfo: [],
       aboutData: { bio: '', philosophy: [], timeline: [], stats: [] },
       profileData: { name: '', title: '', subtitle: '', description: '', photo: '', skills: [] },
 
       initializeDefaults: () => {
-        const { certificates, projects, contactLinks, aboutData, profileData } = get()
+        const { certificates, projects, contactLinks, contactInfo, aboutData, profileData } = get()
         if (certificates.length === 0) set({ certificates: defaultCertificates })
         if (projects.length === 0) set({ projects: defaultProjects })
         if (contactLinks.length === 0) set({ contactLinks: defaultContactLinks })
+        if (contactInfo.length === 0) set({ contactInfo: defaultContactInfo })
         if (aboutData.bio === '') set({ aboutData: defaultAboutData })
         if (profileData.name === '') set({ profileData: defaultProfileData })
       },
@@ -177,6 +202,11 @@ export const usePortfolioStore = create<PortfolioStore>()(
       deleteContactLink: (id) => set((state) => ({ contactLinks: state.contactLinks.filter((l) => l.id !== id) })),
       reorderContactLinks: (links) => set({ contactLinks: links }),
 
+      addContactInfo: (info) => set((state) => ({ contactInfo: [...state.contactInfo, { ...info, id: Date.now().toString() }] })),
+      updateContactInfo: (id, data) => set((state) => ({ contactInfo: state.contactInfo.map((i) => i.id === id ? { ...i, ...data } : i) })),
+      deleteContactInfo: (id) => set((state) => ({ contactInfo: state.contactInfo.filter((i) => i.id !== id) })),
+      reorderContactInfo: (infos) => set({ contactInfo: infos }),
+
       updateAboutData: (data) => set((state) => ({ aboutData: { ...state.aboutData, ...data } })),
       addTimelineItem: (item) => set((state) => ({ aboutData: { ...state.aboutData, timeline: [...state.aboutData.timeline, { ...item, id: Date.now().toString() }] } })),
       updateTimelineItem: (id, data) => set((state) => ({ aboutData: { ...state.aboutData, timeline: state.aboutData.timeline.map((t) => t.id === id ? { ...t, ...data } : t) } })),
@@ -193,6 +223,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
         certificates: state.certificates,
         projects: state.projects,
         contactLinks: state.contactLinks,
+        contactInfo: state.contactInfo,
         aboutData: state.aboutData,
         profileData: state.profileData,
       }),
@@ -213,6 +244,11 @@ export function useProjects() {
 export function useContactLinks() {
   const { contactLinks, addContactLink, updateContactLink, deleteContactLink, reorderContactLinks, initializeDefaults } = usePortfolioStore()
   return { contactLinks, addContactLink, updateContactLink, deleteContactLink, reorderContactLinks, initializeDefaults }
+}
+
+export function useContactInfo() {
+  const { contactInfo, addContactInfo, updateContactInfo, deleteContactInfo, reorderContactInfo, initializeDefaults } = usePortfolioStore()
+  return { contactInfo, addContactInfo, updateContactInfo, deleteContactInfo, reorderContactInfo, initializeDefaults }
 }
 
 export function useAboutData() {
