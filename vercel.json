@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "trailingSlash": false,
+  "cleanUrls": false,
+  "trailingSlash": true,
   "headers": [
     {
       "source": "/(.*)",
@@ -48,11 +48,11 @@
   ],
   "routes": [
     {
-      "handle": "filesystem"
+      "src": "/admin/(.*)",
+      "dest": "/admin/$1"
     },
     {
-      "src": "/admin",
-      "dest": "/admin.html"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
