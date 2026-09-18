@@ -37,7 +37,7 @@
       ]
     },
     {
-      "source": "/(css|js|assets)/(.*)",
+      "source": "/_next/static/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
