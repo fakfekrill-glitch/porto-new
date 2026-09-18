@@ -356,8 +356,8 @@ export default function AdminDashboard() {
       <AnimatePresence>
         {showModal && (
           <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)}>
-            <motion.div className="card-cyber w-full max-w-2xl max-h-[90vh] overflow-y-auto" initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} onClick={e => e.stopPropagation()}>
-              <div className="p-6">
+            <motion.div className="card-cyber w-full max-w-2xl max-h-[90vh] flex flex-col" initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} onClick={e => e.stopPropagation()}>
+              <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-display text-xl font-bold text-gradient">{editingItem ? 'EDIT' : 'ADD'} {getTabLabel(activeTab).slice(0, -1)}</h3>
                   <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-lg glass border border-zinc-600 flex items-center justify-center text-zinc-400 hover:text-white hover:border-pink-500 transition-all"><X className="w-4 h-4" /></button>
@@ -418,7 +418,7 @@ export default function AdminDashboard() {
                       <textarea placeholder="BIO / DESCRIPTION" value={formData.desc} onChange={e => setFormData(prev => ({ ...prev, desc: e.target.value }))} className="input-cyber min-h-[80px]" rows={3} />
                     </>
                   )}
-                  <div className="flex gap-3 pt-4">
+                  <div className="sticky bottom-0 mt-4 pt-4 border-t border-cyber-border bg-cyber-darker/50 flex gap-3">
                     <button onClick={() => setShowModal(false)} className="flex-1 px-4 py-3 font-mono text-sm uppercase tracking-wider border border-zinc-600 text-zinc-400 hover:border-pink-500 hover:text-pink-400 transition-all rounded-lg">CANCEL</button>
                     <button onClick={handleSave} className="btn-cyber flex-1"><Save className="w-4 h-4 mr-2" /><span>{editingItem ? 'UPDATE' : 'SAVE'}</span></button>
                   </div>
